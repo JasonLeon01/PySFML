@@ -1,0 +1,239 @@
+#include <window_base.h>
+
+void bind_enum(py::module_ &m) {
+    py::module_ style = m.def_submodule("Style");
+
+    style.attr("Empty") = py::int_(static_cast<int>(sf::Style::None)); // attr name cannot be none.
+    style.attr("Titlebar") = py::int_(static_cast<int>(sf::Style::Titlebar));
+    style.attr("Resize") = py::int_(static_cast<int>(sf::Style::Resize));
+    style.attr("Close") = py::int_(static_cast<int>(sf::Style::Close));
+    style.attr("Default") = py::int_(static_cast<int>(sf::Style::Default));
+
+    py::enum_<sf::State>(m, "State")
+    .value("Windowed", sf::State::Windowed)
+    .value("Fullscreen", sf::State::Fullscreen);
+}
+
+void bind_context(py::module_ &m) {
+    py::class_<sf::Context>(m, "Context")
+    .def(py::init<>())
+    .def("set_active", &sf::Context::setActive)
+    .def("get_settings", &sf::Context::getSettings);
+    
+    py::enum_<sf::ContextSettings::Attribute>(m, "Attribute")
+    .value("Default", sf::ContextSettings::Default)
+    .value("Core", sf::ContextSettings::Core)
+    .value("Debug", sf::ContextSettings::Debug)
+    .export_values();
+    
+    py::class_<sf::ContextSettings>(m, "ContextSettings")
+    .def(py::init<>())
+    .def_readonly("depthBits", &sf::ContextSettings::depthBits)
+    .def_readonly("stencilBits", &sf::ContextSettings::stencilBits)
+    .def_readonly("antiAliasingLevel", &sf::ContextSettings::antiAliasingLevel)
+    .def_readonly("majorVersion", &sf::ContextSettings::majorVersion)
+    .def_readonly("minorVersion", &sf::ContextSettings::minorVersion)
+    .def_readonly("attributeFlags", &sf::ContextSettings::attributeFlags)
+    .def_readonly("sRgbCapable", &sf::ContextSettings::sRgbCapable);    
+}
+
+void bind_cursor(py::module_ &m) {
+    py::enum_<sf::Cursor::Type>(m, "CursorType")
+    .value("Arrow", sf::Cursor::Type::Arrow)
+    .value("ArrowWait", sf::Cursor::Type::ArrowWait)
+    .value("Wait", sf::Cursor::Type::Wait)
+    .value("Text", sf::Cursor::Type::Text)
+    .value("Hand", sf::Cursor::Type::Hand)
+    .value("SizeHorizontal", sf::Cursor::Type::SizeHorizontal)
+    .value("SizeVertical", sf::Cursor::Type::SizeVertical)
+    .value("SizeTopLeftBottomRight", sf::Cursor::Type::SizeTopLeftBottomRight)
+    .value("SizeBottomLeftTopRight", sf::Cursor::Type::SizeBottomLeftTopRight)
+    .value("SizeLeft", sf::Cursor::Type::SizeLeft)
+    .value("SizeRight", sf::Cursor::Type::SizeRight)
+    .value("SizeTop", sf::Cursor::Type::SizeTop)
+    .value("SizeBottom", sf::Cursor::Type::SizeBottom)
+    .value("SizeTopLeft", sf::Cursor::Type::SizeTopLeft)
+    .value("SizeTopRight", sf::Cursor::Type::SizeTopRight)
+    .value("SizeBottomLeft", sf::Cursor::Type::SizeBottomLeft)
+    .value("SizeBottomRight", sf::Cursor::Type::SizeBottomRight)
+    .value("SizeAll", sf::Cursor::Type::SizeAll)
+    .value("Cross", sf::Cursor::Type::Cross)
+    .value("Help", sf::Cursor::Type::Help)
+    .value("NotAllowed", sf::Cursor::Type::NotAllowed);
+    
+    py::class_<sf::Cursor>(m, "Cursor")
+    .def(py::init<sf::Cursor::Type>())
+    .def("createFromPixels", &sf::Cursor::createFromPixels)
+    .def("createFromSystem", &sf::Cursor::createFromSystem);
+}
+
+void bind_event(py::module_ &m) {
+    py::class_<sf::Event::Closed>(m, "EventClosed")
+    .def(py::init<>());
+
+    py::class_<sf::Event::Resized>(m, "EventResized")
+    .def(py::init<>())
+    .def_readonly("size", &sf::Event::Resized::size);
+
+    py::class_<sf::Event::FocusLost>(m, "EventFocusLost")
+    .def(py::init<>());
+
+    py::class_<sf::Event::FocusGained>(m, "EventFocusGained")
+    .def(py::init<>());
+
+    py::class_<sf::Event::TextEntered>(m, "EventTextEntered")
+    .def(py::init<>())
+    .def_readonly("unicode", &sf::Event::TextEntered::unicode);
+
+    py::class_<sf::Event::KeyPressed>(m, "EventKeyPressed")
+    .def(py::init<>())
+    .def_readonly("code", &sf::Event::KeyPressed::code)
+    .def_readonly("scancode", &sf::Event::KeyPressed::scancode)
+    .def_readonly("alt", &sf::Event::KeyPressed::alt)
+    .def_readonly("control", &sf::Event::KeyPressed::control)
+    .def_readonly("shift", &sf::Event::KeyPressed::shift)
+    .def_readonly("system", &sf::Event::KeyPressed::system);
+
+    py::class_<sf::Event::KeyReleased>(m, "EventKeyReleased")
+    .def(py::init<>())
+    .def_readonly("code", &sf::Event::KeyReleased::code)
+    .def_readonly("scancode", &sf::Event::KeyReleased::scancode)
+    .def_readonly("alt", &sf::Event::KeyReleased::alt)
+    .def_readonly("control", &sf::Event::KeyReleased::control)
+    .def_readonly("shift", &sf::Event::KeyReleased::shift)
+    .def_readonly("system", &sf::Event::KeyReleased::system);
+
+    py::class_<sf::Event::MouseWheelScrolled>(m, "EventMouseWheelScrolled")
+    .def(py::init<>())
+    .def_readonly("wheel", &sf::Event::MouseWheelScrolled::wheel)
+    .def_readonly("delta", &sf::Event::MouseWheelScrolled::delta)
+    .def_readonly("position", &sf::Event::MouseWheelScrolled::position);
+
+    py::class_<sf::Event::MouseButtonPressed>(m, "EventMouseButtonPressed")
+    .def(py::init<>())
+    .def_readonly("button", &sf::Event::MouseButtonPressed::button)
+    .def_readonly("position", &sf::Event::MouseButtonPressed::position);
+
+    py::class_<sf::Event::MouseButtonReleased>(m, "EventMouseButtonReleased")
+    .def(py::init<>())
+    .def_readonly("button", &sf::Event::MouseButtonReleased::button)
+    .def_readonly("position", &sf::Event::MouseButtonReleased::position);
+
+    py::class_<sf::Event::MouseMoved>(m, "EventMouseMoved")
+    .def(py::init<>())
+    .def_readonly("position", &sf::Event::MouseMoved::position);
+
+    py::class_<sf::Event::MouseMovedRaw>(m, "EventMouseMovedRaw")
+    .def(py::init<>())
+    .def_readonly("delta", &sf::Event::MouseMovedRaw::delta);
+
+    py::class_<sf::Event::MouseEntered>(m, "EventMouseEntered")
+    .def(py::init<>());
+
+    py::class_<sf::Event::MouseLeft>(m, "EventMouseLeft")
+    .def(py::init<>());
+
+    py::class_<sf::Event::JoystickButtonPressed>(m, "EventJoystickButtonPressed")
+    .def(py::init<>())
+    .def_readonly("joystickId", &sf::Event::JoystickButtonPressed::joystickId)
+    .def_readonly("button", &sf::Event::JoystickButtonPressed::button);
+
+    py::class_<sf::Event::JoystickButtonReleased>(m, "EventJoystickButtonReleased")
+    .def(py::init<>())
+    .def_readonly("joystickId", &sf::Event::JoystickButtonReleased::joystickId)
+    .def_readonly("button", &sf::Event::JoystickButtonReleased::button);
+
+    py::class_<sf::Event::JoystickMoved>(m, "EventJoystickMoved")
+    .def(py::init<>())
+    .def_readonly("joystickId", &sf::Event::JoystickMoved::joystickId)
+    .def_readonly("axis", &sf::Event::JoystickMoved::axis)
+    .def_readonly("position", &sf::Event::JoystickMoved::position);
+
+    py::class_<sf::Event::JoystickConnected>(m, "EventJoystickConnected")
+    .def(py::init<>())
+    .def_readonly("joystickId", &sf::Event::JoystickConnected::joystickId);
+
+    py::class_<sf::Event::JoystickDisconnected>(m, "EventJoystickDisconnected")
+    .def(py::init<>())
+    .def_readonly("joystickId", &sf::Event::JoystickDisconnected::joystickId);
+
+    py::class_<sf::Event::TouchBegan>(m, "EventTouchBegan")
+    .def(py::init<>())
+    .def_readonly("finger", &sf::Event::TouchBegan::finger)
+    .def_readonly("position", &sf::Event::TouchBegan::position);
+
+    py::class_<sf::Event::TouchMoved>(m, "EventTouchMoved")
+    .def(py::init<>())
+    .def_readonly("finger", &sf::Event::TouchMoved::finger)
+    .def_readonly("position", &sf::Event::TouchMoved::position);
+
+    py::class_<sf::Event::TouchEnded>(m, "EventTouchEnded")
+    .def(py::init<>())
+    .def_readonly("finger", &sf::Event::TouchEnded::finger)
+    .def_readonly("position", &sf::Event::TouchEnded::position);
+
+    py::class_<sf::Event::SensorChanged>(m, "EventSensorChanged")
+    .def(py::init<>())
+    .def_readonly("type", &sf::Event::SensorChanged::type)
+    .def_readonly("value", &sf::Event::SensorChanged::value);
+
+    py::class_<sf::Event>(m, "Event")
+    .def(py::init([](sf::Event::Closed &closed) { return sf::Event(closed); }))
+    .def(py::init([](sf::Event::Resized &resized) { return sf::Event(resized); }))
+    .def(py::init([](sf::Event::FocusLost &focusLost) { return sf::Event(focusLost); }))
+    .def(py::init([](sf::Event::FocusGained &focusGained) { return sf::Event(focusGained); }))
+    .def(py::init([](sf::Event::TextEntered &textEntered) { return sf::Event(textEntered); }))
+    .def(py::init([](sf::Event::KeyPressed &keyPressed) { return sf::Event(keyPressed); }))
+    .def(py::init([](sf::Event::KeyReleased &keyReleased) { return sf::Event(keyReleased); }))
+    .def(py::init([](sf::Event::MouseWheelScrolled &mouseWheelScrolled) { return sf::Event(mouseWheelScrolled); }))
+    .def(py::init([](sf::Event::MouseButtonPressed &mouseButtonPressed) { return sf::Event(mouseButtonPressed); }))
+    .def(py::init([](sf::Event::MouseButtonReleased &mouseButtonReleased) { return sf::Event(mouseButtonReleased); }))
+    .def(py::init([](sf::Event::MouseMoved &mouseMoved) { return sf::Event(mouseMoved); }))
+    .def(py::init([](sf::Event::MouseMovedRaw &mouseMovedRaw) { return sf::Event(mouseMovedRaw); }))
+    .def(py::init([](sf::Event::MouseEntered &mouseEntered) { return sf::Event(mouseEntered); }))
+    .def(py::init([](sf::Event::MouseLeft &mouseLeft) { return sf::Event(mouseLeft); }))
+    .def(py::init([](sf::Event::JoystickButtonPressed &joystickButtonPressed) { return sf::Event(joystickButtonPressed); }))
+    .def(py::init([](sf::Event::JoystickButtonReleased &joystickButtonReleased) { return sf::Event(joystickButtonReleased); }))
+    .def(py::init([](sf::Event::JoystickMoved &joystickMoved) { return sf::Event(joystickMoved); }))
+    .def(py::init([](sf::Event::JoystickConnected &joystickConnected) { return sf::Event(joystickConnected); }))
+    .def(py::init([](sf::Event::JoystickDisconnected &joystickDisconnected) { return sf::Event(joystickDisconnected); }))
+    .def(py::init([](sf::Event::TouchBegan &touchBegan) { return sf::Event(touchBegan); }))
+    .def(py::init([](sf::Event::TouchMoved &touchMoved) { return sf::Event(touchMoved); }))
+    .def(py::init([](sf::Event::TouchEnded &touchEnded) { return sf::Event(touchEnded); }))
+    .def(py::init([](sf::Event::SensorChanged &sensorChanged) { return sf::Event(sensorChanged); }))
+    .def("isClosed", [](sf::Event& event) { return event.is<sf::Event::Closed>(); })
+    .def("isResized", [](sf::Event& event) { return event.is<sf::Event::Resized>(); })
+    .def("isFocused", [](sf::Event& event) { return event.is<sf::Event::FocusLost>(); })
+    .def("isFocused", [](sf::Event& event) { return event.is<sf::Event::FocusGained>(); })
+    .def("isTextEntered", [](sf::Event& event) { return event.is<sf::Event::TextEntered>(); })
+    .def("isKeyPressed", [](sf::Event& event) { return event.is<sf::Event::KeyPressed>(); })
+    .def("isKeyReleased", [](sf::Event& event) { return event.is<sf::Event::KeyReleased>(); })
+    .def("isMouseWheelScrolled", [](sf::Event& event) { return event.is<sf::Event::MouseWheelScrolled>(); })
+    .def("isMouseButtonPressed", [](sf::Event& event) { return event.is<sf::Event::MouseButtonPressed>(); })
+    .def("isMouseButtonReleased", [](sf::Event& event) { return event.is<sf::Event::MouseButtonReleased>(); })
+    .def("isMouseMoved", [](sf::Event& event) { return event.is<sf::Event::MouseMoved>(); })
+    .def("isMouseMovedRaw", [](sf::Event& event) { return event.is<sf::Event::MouseMovedRaw>(); })
+    .def("isMouseEntered", [](sf::Event& event) { return event.is<sf::Event::MouseEntered>(); })
+    .def("isMouseLeft", [](sf::Event& event) { return event.is<sf::Event::MouseLeft>(); })
+    .def("isJoystickButtonPressed", [](sf::Event& event) { return event.is<sf::Event::JoystickButtonPressed>(); })
+    .def("isJoystickButtonReleased", [](sf::Event& event) { return event.is<sf::Event::JoystickButtonReleased>(); })
+    .def("isJoystickMoved", [](sf::Event& event) { return event.is<sf::Event::JoystickMoved>(); })
+    .def("isJoystickConnected", [](sf::Event& event) { return event.is<sf::Event::JoystickConnected>(); })
+    .def("isJoystickDisconnected", [](sf::Event& event) { return event.is<sf::Event::JoystickDisconnected>(); })
+    .def("isTouchBegan", [](sf::Event& event) { return event.is<sf::Event::TouchBegan>(); })
+    .def("isTouchMoved", [](sf::Event& event) { return event.is<sf::Event::TouchMoved>(); })
+    .def("isTouchEnded", [](sf::Event& event) { return event.is<sf::Event::TouchEnded>(); })
+    .def("isSensorChanged", [](sf::Event& event) { return event.is<sf::Event::SensorChanged>(); });
+}
+
+void bind_video_mode(py::module_ &m) {
+    py::class_<sf::VideoMode>(m, "VideoMode")
+    .def(py::init<>())
+    .def(py::init<sf::Vector2u, unsigned int>(), py::arg("size"), py::arg("bitsPerPixel") = 32)
+    .def_property("size", [](sf::VideoMode &vm) { return vm.size; }, [](sf::VideoMode &vm, sf::Vector2u size) { vm.size = size; })
+    .def_property("bits_per_pixel", [](sf::VideoMode &vm) { return vm.bitsPerPixel; }, [](sf::VideoMode &vm, unsigned int bitsPerPixel) { vm.bitsPerPixel = bitsPerPixel; })
+    .def_static("get_desktop_mode", &sf::VideoMode::getDesktopMode)
+    .def_static("get_fullscreen_modes", &sf::VideoMode::getFullscreenModes)
+    .def("is_valid", &sf::VideoMode::isValid);
+}
+    
