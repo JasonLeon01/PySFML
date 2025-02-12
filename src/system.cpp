@@ -66,5 +66,7 @@ void bind_input_stream(py::module &m) {
 
     py::class_<sf::FileInputStream, sf::InputStream>(m, "FileInputStream")
     .def(py::init<>())
-    .def("open", &sf::FileInputStream::open);
+    .def("open", [](sf::FileInputStream& self, const std::string& filename) {
+        return self.open(filename);
+    });
 }
