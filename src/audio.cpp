@@ -46,7 +46,7 @@ void bind_listener(py::module& m) {
 }
 
 void bind_sound_source(py::module& m) {
-    py::enum_<sf::SoundSource::Status>(m, "Status")
+    py::enum_<sf::SoundSource::Status>(m, "SoundSourceStatus")
     .value("Stopped", sf::SoundSource::Status::Stopped)
     .value("Paused", sf::SoundSource::Status::Paused)
     .value("Playing", sf::SoundSource::Status::Playing)

@@ -5,6 +5,7 @@
 #include <graphics_render.h>
 #include <graphics_core.h>
 #include <audio.h>
+#include <network.h>
 
 PYBIND11_MODULE(pysf, m) {
     m.doc() = "SFML Library";
@@ -74,4 +75,8 @@ PYBIND11_MODULE(pysf, m) {
     bind_sound_buffer_recorder(m);
     bind_input_sound_file(m);
     bind_output_sound_file(m);
+
+    bind_ftp(m);
+    bind_http(m);
+    bind_ip_address(m);
 }
