@@ -76,5 +76,140 @@ void bind_ip_address(py::module &m) {
     .def("to_integer", &sf::IpAddress::toInteger)
     .def_static("get_local_address", &sf::IpAddress::getLocalAddress)
     .def_static("get_public_address", &sf::IpAddress::getPublicAddress, py::arg("timeout") = sf::Time::Zero)
-    .def_static("resolve", &sf::IpAddress::resolve, py::arg("host"));
+    .def_static("resolve", &sf::IpAddress::resolve, py::arg("host"))
+    .def("__lt__", [](const sf::IpAddress& left, const sf::IpAddress& right) { return left < right; })
+    .def("__le__", [](const sf::IpAddress& left, const sf::IpAddress& right) { return left <= right; })
+    .def("__eq__", [](const sf::IpAddress& left, const sf::IpAddress& right) { return left == right; })
+    .def("__ne__", [](const sf::IpAddress& left, const sf::IpAddress& right) { return left != right; })
+    .def("__gt__", [](const sf::IpAddress& left, const sf::IpAddress& right) { return left > right; })
+    .def("__ge__", [](const sf::IpAddress& left, const sf::IpAddress& right) { return left >= right; })
+    .def("__repr__", [](const sf::IpAddress& ip) { return "<sf.IpAddress: " + ip.toString() + ">"; });
+}
+
+void bind_packet(py::module_ &m) {
+    py::class_<sf::Packet>(m, "Packet")
+    .def("append", &sf::Packet::append)
+    .def("get_read_position", &sf::Packet::getReadPosition)
+    .def("clear", &sf::Packet::clear)
+    .def("get_data", &sf::Packet::getData)
+    .def("get_data_size", &sf::Packet::getDataSize)
+    .def("end_of_packet", &sf::Packet::endOfPacket)
+    .def("__bool__", [](const sf::Packet& packet) { return static_cast<bool>(packet); })
+    .def("__rshift__", [](sf::Packet& packet, bool& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::int8_t& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::uint8_t& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::int16_t& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::uint16_t& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::int32_t& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::uint32_t& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::int64_t& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::uint64_t& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, float& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, double& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, char* data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::string& data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, wchar_t* data) { packet >> data; return packet; })
+    .def("__rshift__", [](sf::Packet& packet, std::wstring& data) { packet >> data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const bool& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::int8_t& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::uint8_t& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::int16_t& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::uint16_t& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::int32_t& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::uint32_t& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::int64_t& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::uint64_t& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const float& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const double& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const char* data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::string& data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const wchar_t* data) { packet << data; return packet; })
+    .def("__lshift__", [](sf::Packet& packet, const std::wstring& data) { packet << data; return packet; });
+}
+
+void bind_socket(py::module_ &m) {
+    py::class_<sf::Socket>(m, "Socket")
+    .def("set_blocking", &sf::Socket::setBlocking)
+    .def("is_blocking", &sf::Socket::isBlocking);
+
+    #if defined(SFML_SYSTEM_WINDOWS)
+        py::class_<sf::SocketHandle>(m, "SocketHandle")
+        .def(py::init<>())
+        .def("get_value", [](const sf::SocketHandle& handle) -> UINT_PTR {
+            return reinterpret_cast<UINT_PTR>(handle);
+        });
+    #else
+        py::class_<sf::SocketHandle>(m, "SocketHandle")
+        .def(py::init<>())
+        .def("get_value", [](const sf::SocketHandle& handle) -> int {
+            return static_cast<int>(handle);
+        });
+    #endif
+}
+
+void bind_socket_selector(py::module_ &m) {
+    py::class_<sf::SocketSelector>(m, "SocketSelector")
+        .def(py::init<>())
+        .def("add", &sf::SocketSelector::add)
+        .def("remove", &sf::SocketSelector::remove)
+        .def("clear", &sf::SocketSelector::clear)
+        .def("wait", &sf::SocketSelector::wait, py::arg("timeout") = sf::Time::Zero)
+        .def("is_ready", &sf::SocketSelector::isReady);
+}
+
+void bind_tcp_listener(py::module &m) {
+    py::class_<sf::TcpListener, sf::Socket>(m, "TcpListener")
+        .def(py::init<>())
+        .def("get_local_port", &sf::TcpListener::getLocalPort)
+        .def("listen", &sf::TcpListener::listen, py::arg("port"), py::arg("address") = sf::IpAddress::Any)
+        .def("close", &sf::TcpListener::close)
+        .def("accept", &sf::TcpListener::accept, py::arg("socket"));
+}
+
+void bind_tcp_socket(py::module &m) {
+    py::class_<sf::TcpSocket, sf::Socket>(m, "TcpSocket")
+    .def(py::init<>())
+    .def("get_local_port", &sf::TcpSocket::getLocalPort)
+    .def("get_remote_address", &sf::TcpSocket::getRemoteAddress)
+    .def("get_remote_port", &sf::TcpSocket::getRemotePort)
+    .def("connect", &sf::TcpSocket::connect, py::arg("remoteAddress"), py::arg("remotePort"), py::arg("timeout") = sf::Time::Zero)
+    .def("disconnect", &sf::TcpSocket::disconnect)
+    .def("send", (sf::Socket::Status (sf::TcpSocket::*)(const void*, std::size_t)) &sf::TcpSocket::send)
+    .def("send", (sf::Socket::Status (sf::TcpSocket::*)(const void*, std::size_t, std::size_t&)) &sf::TcpSocket::send)
+    .def("receive", (sf::Socket::Status (sf::TcpSocket::*)(void*, std::size_t, std::size_t&)) &sf::TcpSocket::receive)
+    .def("send", [](sf::TcpSocket& self, const void* data, std::size_t size) {
+        return self.send(data, size);
+    })
+    .def("send", [](sf::TcpSocket& self, const void* data, std::size_t size, std::size_t& sent) {
+        return self.send(data, size, sent); 
+    })
+    .def("send", [](sf::TcpSocket& self, sf::Packet& packet) {
+        return self.send(packet);
+    })
+    .def("receive", [](sf::TcpSocket& self, void* data, std::size_t size, std::size_t& received) {
+        return self.receive(data, size, received);
+    })
+    .def("receive", [](sf::TcpSocket& self, sf::Packet& packet) {
+        return self.receive(packet);
+    });
+}
+
+void bind_udp_socket(py::module &m) {
+    py::class_<sf::UdpSocket, sf::Socket>(m, "UdpSocket")
+    .def(py::init<>())
+    .def("getLocalPort", &sf::UdpSocket::getLocalPort)
+    .def("bind", &sf::UdpSocket::bind, py::arg("port"), py::arg("address") = sf::IpAddress::Any)
+    .def("unbind", &sf::UdpSocket::unbind)
+    .def("send", [](sf::UdpSocket& self, const void* data, std::size_t size, sf::IpAddress remoteAddress, unsigned short remotePort) {
+        return self.send(data, size, remoteAddress, remotePort);
+    })
+   .def("receive", [](sf::UdpSocket& self, void* data, std::size_t size, std::size_t& received, std::optional<sf::IpAddress>& remoteAddress, unsigned short& remotePort) {
+        return self.receive(data, size, received, remoteAddress, remotePort);
+    })
+    .def("send", [](sf::UdpSocket& self, sf::Packet& packet, sf::IpAddress remoteAddress, unsigned short remotePort) {
+        return self.send(packet, remoteAddress, remotePort);
+    })
+    .def("receive", [](sf::UdpSocket& self, sf::Packet& packet, std::optional<sf::IpAddress>& remoteAddress, unsigned short& remotePort) {
+        return self.receive(packet, remoteAddress, remotePort);
+    });
 }

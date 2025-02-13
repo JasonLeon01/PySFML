@@ -79,4 +79,10 @@ PYBIND11_MODULE(pysf, m) {
     bind_ftp(m);
     bind_http(m);
     bind_ip_address(m);
+    bind_packet(m);
+    bind_socket(m);
+    bind_socket_selector(m);
+    bind_tcp_listener(m);
+    bind_tcp_socket(m);
+    bind_udp_socket(m);
 }
