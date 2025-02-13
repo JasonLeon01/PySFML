@@ -17,7 +17,9 @@ void bind_type(py::module_ &m) {
 }
 
 void bind_blend_mode(py::module_ &m) {
-    py::enum_<sf::BlendMode::Factor>(m, "Factor")
+    py::class_<sf::BlendMode> blend_mode(m, "BlendMode");
+
+    py::enum_<sf::BlendMode::Factor>(blend_mode, "Factor")
     .value("Zero", sf::BlendMode::Factor::Zero)
     .value("One", sf::BlendMode::Factor::One)
     .value("SrcColor", sf::BlendMode::Factor::SrcColor)
@@ -29,15 +31,14 @@ void bind_blend_mode(py::module_ &m) {
     .value("DstAlpha", sf::BlendMode::Factor::DstAlpha)
     .value("OneMinusDstAlpha", sf::BlendMode::Factor::OneMinusDstAlpha);
 
-    py::enum_<sf::BlendMode::Equation>(m, "Equation")
+    py::enum_<sf::BlendMode::Equation>(blend_mode, "Equation")
     .value("Add", sf::BlendMode::Equation::Add)
     .value("Subtract", sf::BlendMode::Equation::Subtract)
     .value("ReverseSubtract", sf::BlendMode::Equation::ReverseSubtract)
     .value("Min", sf::BlendMode::Equation::Min)
     .value("Max", sf::BlendMode::Equation::Max);
 
-    py::class_<sf::BlendMode>(m, "BlendMode")
-    .def(py::init<>())
+    blend_mode.def(py::init<>())
     .def(py::init<sf::BlendMode::Factor, sf::BlendMode::Factor, sf::BlendMode::Equation>(),
          "Constructor with source and destination factors and blend equation",
          py::arg("sourceFactor"), py::arg("destinationFactor"), py::arg("blendEquation") = sf::BlendMode::Equation::Add)

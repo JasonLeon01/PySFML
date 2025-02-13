@@ -1,7 +1,9 @@
 #include <network.h>
 
 void bind_ftp(py::module &m) {
-    py::enum_<sf::Ftp::Response::Status>(m, "FtpResponseStatus")
+    py::class_<sf::Ftp::Response> ftp_response(m, "FtpResponse");
+
+    py::enum_<sf::Ftp::Response::Status>(ftp_response, "Status")
     .value("RestartMarkerReply", sf::Ftp::Response::Status::RestartMarkerReply)
     .value("ServiceReadySoon", sf::Ftp::Response::Status::ServiceReadySoon)
     .value("DataConnectionAlreadyOpened", sf::Ftp::Response::Status::DataConnectionAlreadyOpened)
@@ -15,8 +17,7 @@ void bind_ftp(py::module &m) {
     .value("ConnectionFailed", sf::Ftp::Response::Status::ConnectionFailed)
     .value("ConnectionClosed", sf::Ftp::Response::Status::ConnectionClosed);
 
-    py::class_<sf::Ftp::Response>(m, "FtpResponse")
-    .def(py::init<sf::Ftp::Response::Status, std::string>(), py::arg("status") = sf::Ftp::Response::Status::InvalidResponse, py::arg("message") = "")
+    ftp_response.def(py::init<sf::Ftp::Response::Status, std::string>(), py::arg("status") = sf::Ftp::Response::Status::InvalidResponse, py::arg("message") = "")
     .def("is_ok", &sf::Ftp::Response::isOk)
     .def("get_status", &sf::Ftp::Response::getStatus)
     .def("get_message", &sf::Ftp::Response::getMessage);
@@ -30,14 +31,16 @@ void bind_ftp(py::module &m) {
 }
 
 void bind_http(py::module &m) {
-    py::enum_<sf::Http::Request::Method>(m, "HttpMethod")
+    py::class_<sf::Http> http(m, "Http");
+
+    py::enum_<sf::Http::Request::Method>(http, "Method")
     .value("GET", sf::Http::Request::Method::Get)
     .value("POST", sf::Http::Request::Method::Post)
     .value("HEAD", sf::Http::Request::Method::Head)
     .value("PUT", sf::Http::Request::Method::Put)
     .value("DELETE", sf::Http::Request::Method::Delete);
 
-    py::enum_<sf::Http::Response::Status>(m, "HttpStatus")
+    py::enum_<sf::Http::Response::Status>(http, "Status")
     .value("OK", sf::Http::Response::Status::Ok)
     .value("CREATED", sf::Http::Response::Status::Created)
     .value("NO_CONTENT", sf::Http::Response::Status::NoContent)
@@ -47,7 +50,7 @@ void bind_http(py::module &m) {
     .value("NOT_FOUND", sf::Http::Response::Status::NotFound)
     .value("INTERNAL_SERVER_ERROR", sf::Http::Response::Status::InternalServerError);
 
-    py::class_<sf::Http::Request>(m, "HttpRequest")
+    py::class_<sf::Http::Request>(http, "Request")
     .def(py::init<const std::string&, sf::Http::Request::Method, const std::string&>(),
             py::arg("uri") = "", py::arg("method") = sf::Http::Request::Method::Get, py::arg("body") = "")
     .def("set_method", &sf::Http::Request::setMethod)
@@ -56,13 +59,12 @@ void bind_http(py::module &m) {
     .def("set_body", &sf::Http::Request::setBody)
     .def("set_field", &sf::Http::Request::setField);
 
-    py::class_<sf::Http::Response>(m, "HttpResponse")
+    py::class_<sf::Http::Response>(http, "Response")
     .def("get_status", &sf::Http::Response::getStatus)
     .def("get_body", &sf::Http::Response::getBody)
     .def("get_field", &sf::Http::Response::getField);
 
-    py::class_<sf::Http>(m, "Http")
-    .def(py::init<const std::string&, unsigned short>(), py::arg("host") = "", py::arg("port") = 0)
+    http.def(py::init<const std::string&, unsigned short>(), py::arg("host") = "", py::arg("port") = 0)
     .def("set_host", &sf::Http::setHost)
     .def("send_request", &sf::Http::sendRequest);
 }
@@ -149,21 +151,21 @@ void bind_socket(py::module_ &m) {
 
 void bind_socket_selector(py::module_ &m) {
     py::class_<sf::SocketSelector>(m, "SocketSelector")
-        .def(py::init<>())
-        .def("add", &sf::SocketSelector::add)
-        .def("remove", &sf::SocketSelector::remove)
-        .def("clear", &sf::SocketSelector::clear)
-        .def("wait", &sf::SocketSelector::wait, py::arg("timeout") = sf::Time::Zero)
-        .def("is_ready", &sf::SocketSelector::isReady);
+    .def(py::init<>())
+    .def("add", &sf::SocketSelector::add)
+    .def("remove", &sf::SocketSelector::remove)
+    .def("clear", &sf::SocketSelector::clear)
+    .def("wait", &sf::SocketSelector::wait, py::arg("timeout") = sf::Time::Zero)
+    .def("is_ready", &sf::SocketSelector::isReady);
 }
 
 void bind_tcp_listener(py::module &m) {
     py::class_<sf::TcpListener, sf::Socket>(m, "TcpListener")
-        .def(py::init<>())
-        .def("get_local_port", &sf::TcpListener::getLocalPort)
-        .def("listen", &sf::TcpListener::listen, py::arg("port"), py::arg("address") = sf::IpAddress::Any)
-        .def("close", &sf::TcpListener::close)
-        .def("accept", &sf::TcpListener::accept, py::arg("socket"));
+    .def(py::init<>())
+    .def("get_local_port", &sf::TcpListener::getLocalPort)
+    .def("listen", &sf::TcpListener::listen, py::arg("port"), py::arg("address") = sf::IpAddress::Any)
+    .def("close", &sf::TcpListener::close)
+    .def("accept", &sf::TcpListener::accept, py::arg("socket"));
 }
 
 void bind_tcp_socket(py::module &m) {

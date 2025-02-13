@@ -92,8 +92,15 @@ void bind_render_window(py::module_ &m) {
 }
 
 void bind_shader(py::module& m) {
-    py::class_<sf::Shader>(m, "Shader")
-    .def(py::init<>())
+    py::class_<sf::Shader> shader(m, "Shader");
+    
+    py::enum_<sf::Shader::Type>(shader, "Type")
+    .value("Vertex", sf::Shader::Type::Vertex)
+    .value("Geometry", sf::Shader::Type::Geometry)
+    .value("Fragment", sf::Shader::Type::Fragment)
+    .export_values();
+
+    shader.def(py::init<>())
     .def("load_from_file", [](sf::Shader& self, const std::string& filename, sf::Shader::Type type) {
         return self.loadFromFile(filename, type);
     }, py::arg("filename"), py::arg("type"))
@@ -179,10 +186,4 @@ void bind_shader(py::module& m) {
     .def_static("bind", &sf::Shader::bind)
     .def_static("is_available", &sf::Shader::isAvailable)
     .def_static("is_geometry_available", &sf::Shader::isGeometryAvailable);
-
-    py::enum_<sf::Shader::Type>(m, "ShaderType")
-    .value("Vertex", sf::Shader::Type::Vertex)
-    .value("Geometry", sf::Shader::Type::Geometry)
-    .value("Fragment", sf::Shader::Type::Fragment)
-    .export_values();
 }

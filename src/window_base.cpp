@@ -20,14 +20,15 @@ void bind_context(py::module_ &m) {
     .def("set_active", &sf::Context::setActive)
     .def("get_settings", &sf::Context::getSettings);
     
-    py::enum_<sf::ContextSettings::Attribute>(m, "Attribute")
+    py::class_<sf::ContextSettings> context_settings(m, "ContextSettings");
+
+    py::enum_<sf::ContextSettings::Attribute>(context_settings, "Attribute")
     .value("Default", sf::ContextSettings::Default)
     .value("Core", sf::ContextSettings::Core)
     .value("Debug", sf::ContextSettings::Debug)
     .export_values();
     
-    py::class_<sf::ContextSettings>(m, "ContextSettings")
-    .def(py::init<>())
+    context_settings.def(py::init<>())
     .def_readonly("depthBits", &sf::ContextSettings::depthBits)
     .def_readonly("stencilBits", &sf::ContextSettings::stencilBits)
     .def_readonly("antiAliasingLevel", &sf::ContextSettings::antiAliasingLevel)
@@ -38,7 +39,9 @@ void bind_context(py::module_ &m) {
 }
 
 void bind_cursor(py::module_ &m) {
-    py::enum_<sf::Cursor::Type>(m, "CursorType")
+    py::class_<sf::Cursor> cursor(m, "Cursor");
+
+    py::enum_<sf::Cursor::Type>(cursor, "Type")
     .value("Arrow", sf::Cursor::Type::Arrow)
     .value("ArrowWait", sf::Cursor::Type::ArrowWait)
     .value("Wait", sf::Cursor::Type::Wait)
@@ -61,31 +64,32 @@ void bind_cursor(py::module_ &m) {
     .value("Help", sf::Cursor::Type::Help)
     .value("NotAllowed", sf::Cursor::Type::NotAllowed);
     
-    py::class_<sf::Cursor>(m, "Cursor")
-    .def(py::init<sf::Cursor::Type>())
+    cursor.def(py::init<sf::Cursor::Type>())
     .def("createFromPixels", &sf::Cursor::createFromPixels)
     .def("createFromSystem", &sf::Cursor::createFromSystem);
 }
 
 void bind_event(py::module_ &m) {
-    py::class_<sf::Event::Closed>(m, "EventClosed")
+    py::class_<sf::Event> event(m, "Event");
+    
+    py::class_<sf::Event::Closed>(event, "Closed")
     .def(py::init<>());
 
-    py::class_<sf::Event::Resized>(m, "EventResized")
+    py::class_<sf::Event::Resized>(event, "Resized")
     .def(py::init<>())
     .def_readonly("size", &sf::Event::Resized::size);
 
-    py::class_<sf::Event::FocusLost>(m, "EventFocusLost")
+    py::class_<sf::Event::FocusLost>(event, "FocusLost")
     .def(py::init<>());
 
-    py::class_<sf::Event::FocusGained>(m, "EventFocusGained")
+    py::class_<sf::Event::FocusGained>(event, "FocusGained")
     .def(py::init<>());
 
-    py::class_<sf::Event::TextEntered>(m, "EventTextEntered")
+    py::class_<sf::Event::TextEntered>(event, "TextEntered")
     .def(py::init<>())
     .def_readonly("unicode", &sf::Event::TextEntered::unicode);
 
-    py::class_<sf::Event::KeyPressed>(m, "EventKeyPressed")
+    py::class_<sf::Event::KeyPressed>(event, "KeyPressed")
     .def(py::init<>())
     .def_readonly("code", &sf::Event::KeyPressed::code)
     .def_readonly("scancode", &sf::Event::KeyPressed::scancode)
@@ -94,7 +98,7 @@ void bind_event(py::module_ &m) {
     .def_readonly("shift", &sf::Event::KeyPressed::shift)
     .def_readonly("system", &sf::Event::KeyPressed::system);
 
-    py::class_<sf::Event::KeyReleased>(m, "EventKeyReleased")
+    py::class_<sf::Event::KeyReleased>(event, "KeyReleased")
     .def(py::init<>())
     .def_readonly("code", &sf::Event::KeyReleased::code)
     .def_readonly("scancode", &sf::Event::KeyReleased::scancode)
@@ -103,82 +107,81 @@ void bind_event(py::module_ &m) {
     .def_readonly("shift", &sf::Event::KeyReleased::shift)
     .def_readonly("system", &sf::Event::KeyReleased::system);
 
-    py::class_<sf::Event::MouseWheelScrolled>(m, "EventMouseWheelScrolled")
+    py::class_<sf::Event::MouseWheelScrolled>(event, "MouseWheelScrolled")
     .def(py::init<>())
     .def_readonly("wheel", &sf::Event::MouseWheelScrolled::wheel)
     .def_readonly("delta", &sf::Event::MouseWheelScrolled::delta)
     .def_readonly("position", &sf::Event::MouseWheelScrolled::position);
 
-    py::class_<sf::Event::MouseButtonPressed>(m, "EventMouseButtonPressed")
+    py::class_<sf::Event::MouseButtonPressed>(event, "MouseButtonPressed")
     .def(py::init<>())
     .def_readonly("button", &sf::Event::MouseButtonPressed::button)
     .def_readonly("position", &sf::Event::MouseButtonPressed::position);
 
-    py::class_<sf::Event::MouseButtonReleased>(m, "EventMouseButtonReleased")
+    py::class_<sf::Event::MouseButtonReleased>(event, "MouseButtonReleased")
     .def(py::init<>())
     .def_readonly("button", &sf::Event::MouseButtonReleased::button)
     .def_readonly("position", &sf::Event::MouseButtonReleased::position);
 
-    py::class_<sf::Event::MouseMoved>(m, "EventMouseMoved")
+    py::class_<sf::Event::MouseMoved>(event, "MouseMoved")
     .def(py::init<>())
     .def_readonly("position", &sf::Event::MouseMoved::position);
 
-    py::class_<sf::Event::MouseMovedRaw>(m, "EventMouseMovedRaw")
+    py::class_<sf::Event::MouseMovedRaw>(event, "MouseMovedRaw")
     .def(py::init<>())
     .def_readonly("delta", &sf::Event::MouseMovedRaw::delta);
 
-    py::class_<sf::Event::MouseEntered>(m, "EventMouseEntered")
+    py::class_<sf::Event::MouseEntered>(event, "MouseEntered")
     .def(py::init<>());
 
-    py::class_<sf::Event::MouseLeft>(m, "EventMouseLeft")
+    py::class_<sf::Event::MouseLeft>(event, "MouseLeft")
     .def(py::init<>());
 
-    py::class_<sf::Event::JoystickButtonPressed>(m, "EventJoystickButtonPressed")
+    py::class_<sf::Event::JoystickButtonPressed>(event, "JoystickButtonPressed")
     .def(py::init<>())
     .def_readonly("joystickId", &sf::Event::JoystickButtonPressed::joystickId)
     .def_readonly("button", &sf::Event::JoystickButtonPressed::button);
 
-    py::class_<sf::Event::JoystickButtonReleased>(m, "EventJoystickButtonReleased")
+    py::class_<sf::Event::JoystickButtonReleased>(event, "JoystickButtonReleased")
     .def(py::init<>())
     .def_readonly("joystickId", &sf::Event::JoystickButtonReleased::joystickId)
     .def_readonly("button", &sf::Event::JoystickButtonReleased::button);
 
-    py::class_<sf::Event::JoystickMoved>(m, "EventJoystickMoved")
+    py::class_<sf::Event::JoystickMoved>(event, "JoystickMoved")
     .def(py::init<>())
     .def_readonly("joystickId", &sf::Event::JoystickMoved::joystickId)
     .def_readonly("axis", &sf::Event::JoystickMoved::axis)
     .def_readonly("position", &sf::Event::JoystickMoved::position);
 
-    py::class_<sf::Event::JoystickConnected>(m, "EventJoystickConnected")
+    py::class_<sf::Event::JoystickConnected>(event, "JoystickConnected")
     .def(py::init<>())
     .def_readonly("joystickId", &sf::Event::JoystickConnected::joystickId);
 
-    py::class_<sf::Event::JoystickDisconnected>(m, "EventJoystickDisconnected")
+    py::class_<sf::Event::JoystickDisconnected>(event, "JoystickDisconnected")
     .def(py::init<>())
     .def_readonly("joystickId", &sf::Event::JoystickDisconnected::joystickId);
 
-    py::class_<sf::Event::TouchBegan>(m, "EventTouchBegan")
+    py::class_<sf::Event::TouchBegan>(event, "TouchBegan")
     .def(py::init<>())
     .def_readonly("finger", &sf::Event::TouchBegan::finger)
     .def_readonly("position", &sf::Event::TouchBegan::position);
 
-    py::class_<sf::Event::TouchMoved>(m, "EventTouchMoved")
+    py::class_<sf::Event::TouchMoved>(event, "TouchMoved")
     .def(py::init<>())
     .def_readonly("finger", &sf::Event::TouchMoved::finger)
     .def_readonly("position", &sf::Event::TouchMoved::position);
 
-    py::class_<sf::Event::TouchEnded>(m, "EventTouchEnded")
+    py::class_<sf::Event::TouchEnded>(event, "TouchEnded")
     .def(py::init<>())
     .def_readonly("finger", &sf::Event::TouchEnded::finger)
     .def_readonly("position", &sf::Event::TouchEnded::position);
 
-    py::class_<sf::Event::SensorChanged>(m, "EventSensorChanged")
+    py::class_<sf::Event::SensorChanged>(event, "SensorChanged")
     .def(py::init<>())
     .def_readonly("type", &sf::Event::SensorChanged::type)
     .def_readonly("value", &sf::Event::SensorChanged::value);
 
-    py::class_<sf::Event>(m, "Event")
-    .def(py::init([](sf::Event::Closed &closed) { return sf::Event(closed); }))
+    event.def(py::init([](sf::Event::Closed &closed) { return sf::Event(closed); }))
     .def(py::init([](sf::Event::Resized &resized) { return sf::Event(resized); }))
     .def(py::init([](sf::Event::FocusLost &focusLost) { return sf::Event(focusLost); }))
     .def(py::init([](sf::Event::FocusGained &focusGained) { return sf::Event(focusGained); }))

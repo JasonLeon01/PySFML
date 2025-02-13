@@ -64,7 +64,9 @@ void bind_clipboard(py::module &m) {
 }
 
 void bind_joystick(py::module &m) {
-    py::enum_<sf::Joystick::Axis>(m, "JoystickAxis")
+    py::module_ joystick = m.def_submodule("Joystick");
+
+    py::enum_<sf::Joystick::Axis>(joystick, "Axis")
     .value("X", sf::Joystick::Axis::X)
     .value("Y", sf::Joystick::Axis::Y)
     .value("Z", sf::Joystick::Axis::Z)
@@ -75,7 +77,7 @@ void bind_joystick(py::module &m) {
     .value("PovY", sf::Joystick::Axis::PovY)
     .export_values();
 
-    py::class_<sf::Joystick::Identification>(m, "JoystickIdentification")
+    py::class_<sf::Joystick::Identification>(joystick, "Identification")
     .def(py::init<>())
     .def_readwrite("name", &sf::Joystick::Identification::name)
     .def_readwrite("vendor_id", &sf::Joystick::Identification::vendorId)
@@ -89,17 +91,19 @@ void bind_joystick(py::module &m) {
         }
     );
 
-    m.def("is_connected", &sf::Joystick::isConnected);
-    m.def("get_button_count", &sf::Joystick::getButtonCount);
-    m.def("has_axis", &sf::Joystick::hasAxis);
-    m.def("is_button_pressed", &sf::Joystick::isButtonPressed);
-    m.def("get_axis_position", &sf::Joystick::getAxisPosition);
-    m.def("get_identification", &sf::Joystick::getIdentification);
-    m.def("update", &sf::Joystick::update);
+    joystick.def("is_connected", &sf::Joystick::isConnected);
+    joystick.def("get_button_count", &sf::Joystick::getButtonCount);
+    joystick.def("has_axis", &sf::Joystick::hasAxis);
+    joystick.def("is_button_pressed", &sf::Joystick::isButtonPressed);
+    joystick.def("get_axis_position", &sf::Joystick::getAxisPosition);
+    joystick.def("get_identification", &sf::Joystick::getIdentification);
+    joystick.def("update", &sf::Joystick::update);
 }
 
 void bind_keyboard(py::module_ &m) {
-    py::enum_<sf::Keyboard::Key>(m, "Key")
+    py::module_ keyboard = m.def_submodule("Keyboard");
+
+    py::enum_<sf::Keyboard::Key>(keyboard, "Key")
     .value("Unknown", sf::Keyboard::Key::Unknown)
     .value("A", sf::Keyboard::Key::A)
     .value("B", sf::Keyboard::Key::B)
@@ -205,7 +209,7 @@ void bind_keyboard(py::module_ &m) {
     .export_values();
 
     // Binding the Scan enum
-    py::enum_<sf::Keyboard::Scan>(m, "Scan")
+    py::enum_<sf::Keyboard::Scan>(keyboard, "Scan")
     .value("Unknown", sf::Keyboard::Scan::Unknown)
     .value("A", sf::Keyboard::Scan::A)
     .value("B", sf::Keyboard::Scan::B)
@@ -356,20 +360,22 @@ void bind_keyboard(py::module_ &m) {
     .export_values();
 
     // Binding the functions
-    m.def("is_key_pressed", [](sf::Keyboard::Key key) {
+    keyboard.def("is_key_pressed", [](sf::Keyboard::Key key) {
         return sf::Keyboard::isKeyPressed(key);
     });
-    m.def("is_key_pressed", [](sf::Keyboard::Scan scan) {
+    keyboard.def("is_key_pressed", [](sf::Keyboard::Scan scan) {
         return sf::Keyboard::isKeyPressed(scan);
     });
-    m.def("localize", &sf::Keyboard::localize);
-    m.def("delocalize", &sf::Keyboard::delocalize);
-    m.def("get_description", &sf::Keyboard::getDescription);
-    m.def("set_virtual_keyboard_visible", &sf::Keyboard::setVirtualKeyboardVisible);
+    keyboard.def("localize", &sf::Keyboard::localize);
+    keyboard.def("delocalize", &sf::Keyboard::delocalize);
+    keyboard.def("get_description", &sf::Keyboard::getDescription);
+    keyboard.def("set_virtual_keyboard_visible", &sf::Keyboard::setVirtualKeyboardVisible);
 }
 
 void bind_mouse(py::module_ &m) {
-    py::enum_<sf::Mouse::Button>(m, "MouseButton")
+    py::module_ mouse = m.def_submodule("Mouse");
+
+    py::enum_<sf::Mouse::Button>(mouse, "MouseButton")
     .value("Left", sf::Mouse::Button::Left)
     .value("Right", sf::Mouse::Button::Right)
     .value("Middle", sf::Mouse::Button::Middle)
@@ -377,30 +383,32 @@ void bind_mouse(py::module_ &m) {
     .value("Extra2", sf::Mouse::Button::Extra2)
     .export_values();
     
-    py::enum_<sf::Mouse::Wheel>(m, "MouseWheel")
+    py::enum_<sf::Mouse::Wheel>(mouse, "MouseWheel")
     .value("Vertical", sf::Mouse::Wheel::Vertical)
     .value("Horizontal", sf::Mouse::Wheel::Horizontal)
     .export_values();
     
-    m.def("is_button_pressed", &sf::Mouse::isButtonPressed);
-    m.def("get_position", []() {
+    mouse.def("is_button_pressed", &sf::Mouse::isButtonPressed);
+    mouse.def("get_position", []() {
         sf::Vector2i position = sf::Mouse::getPosition();
         return std::make_tuple(position.x, position.y);
     });
-    m.def("get_position", [](sf::WindowBase& window) {
+    mouse.def("get_position", [](sf::WindowBase& window) {
         sf::Vector2i position = sf::Mouse::getPosition(window);
         return std::make_tuple(position.x, position.y);
     });
-    m.def("set_position", [](int x, int y) {
+    mouse.def("set_position", [](int x, int y) {
         sf::Mouse::setPosition(sf::Vector2i(x, y)); 
     });
-    m.def("set_position", [](int x, int y, sf::WindowBase& window) {
+    mouse.def("set_position", [](int x, int y, sf::WindowBase& window) {
         sf::Mouse::setPosition(sf::Vector2i(x, y), window); 
     });
 }
 
 void bind_sensor(py::module_ &m) {
-    py::enum_<sf::Sensor::Type>(m, "SensorType")
+    py::module_ sensor = m.def_submodule("Sensor");
+
+    py::enum_<sf::Sensor::Type>(sensor, "SensorType")
     .value("Accelerometer", sf::Sensor::Type::Accelerometer)
     .value("Gyroscope", sf::Sensor::Type::Gyroscope)
     .value("Magnetometer", sf::Sensor::Type::Magnetometer)
@@ -409,18 +417,20 @@ void bind_sensor(py::module_ &m) {
     .value("Orientation", sf::Sensor::Type::Orientation)
     .export_values();
     
-    m.def("is_available", &sf::Sensor::isAvailable);
-    m.def("set_enabled", &sf::Sensor::setEnabled);
-    m.def("get_value", &sf::Sensor::getValue);
+    sensor.def("is_available", &sf::Sensor::isAvailable);
+    sensor.def("set_enabled", &sf::Sensor::setEnabled);
+    sensor.def("get_value", &sf::Sensor::getValue);
 }
 
 void bind_touch(py::module_ &m) {
-    m.def("isDown", &sf::Touch::isDown);
-    m.def("getPosition", [](unsigned int finger) {
+    py::module_ touch = m.def_submodule("Touch");
+
+    touch.def("isDown", &sf::Touch::isDown);
+    touch.def("getPosition", [](unsigned int finger) {
         sf::Vector2i position = sf::Touch::getPosition(finger);
         return sf::Vector2i(position.x, position.y);
     });
-    m.def("getPosition", [](unsigned int finger, sf::WindowBase& relativeTo) {
+    touch.def("getPosition", [](unsigned int finger, sf::WindowBase& relativeTo) {
         sf::Vector2i position = sf::Touch::getPosition(finger, relativeTo);
         return sf::Vector2i(position.x, position.y);
     });

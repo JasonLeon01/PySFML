@@ -25,41 +25,44 @@ void bind_sound_channel(py::module& m) {
 }
 
 void bind_listener(py::module& m) {
-    py::class_<sf::Listener::Cone>(m, "ListenerCone")
+    py::module_ listener = m.def_submodule("Listener");
+
+    py::class_<sf::Listener::Cone>(listener, "Cone")
         .def(py::init<>())
         .def_readwrite("inner_angle", &sf::Listener::Cone::innerAngle)
         .def_readwrite("outer_angle", &sf::Listener::Cone::outerAngle)
         .def_readwrite("outer_gain", &sf::Listener::Cone::outerGain);
 
-    m.def("set_global_volume", &sf::Listener::setGlobalVolume, "Set the global volume for all sounds and musics");
-    m.def("get_global_volume", &sf::Listener::getGlobalVolume, "Get the current global volume");
-    m.def("set_position", &sf::Listener::setPosition, "Set the position of the listener", py::arg("position"));
-    m.def("get_position", &sf::Listener::getPosition, "Get the position of the listener");
-    m.def("set_direction", &sf::Listener::setDirection, "Set the direction of the listener", py::arg("direction"));
-    m.def("get_direction", &sf::Listener::getDirection, "Get the direction of the listener");
-    m.def("set_velocity", &sf::Listener::setVelocity, "Set the velocity of the listener", py::arg("velocity"));
-    m.def("get_velocity", &sf::Listener::getVelocity, "Get the velocity of the listener");
-    m.def("set_cone", &sf::Listener::setCone, "Set the cone properties of the listener", py::arg("cone"));
-    m.def("get_cone", &sf::Listener::getCone, "Get the cone properties of the listener");
-    m.def("set_up_vector", &sf::Listener::setUpVector, "Set the upward vector of the listener", py::arg("upVector"));
-    m.def("get_up_vector", &sf::Listener::getUpVector, "Get the upward vector of the listener");
+    listener.def("set_global_volume", &sf::Listener::setGlobalVolume, "Set the global volume for all sounds and musics");
+    listener.def("get_global_volume", &sf::Listener::getGlobalVolume, "Get the current global volume");
+    listener.def("set_position", &sf::Listener::setPosition, "Set the position of the listener", py::arg("position"));
+    listener.def("get_position", &sf::Listener::getPosition, "Get the position of the listener");
+    listener.def("set_direction", &sf::Listener::setDirection, "Set the direction of the listener", py::arg("direction"));
+    listener.def("get_direction", &sf::Listener::getDirection, "Get the direction of the listener");
+    listener.def("set_velocity", &sf::Listener::setVelocity, "Set the velocity of the listener", py::arg("velocity"));
+    listener.def("get_velocity", &sf::Listener::getVelocity, "Get the velocity of the listener");
+    listener.def("set_cone", &sf::Listener::setCone, "Set the cone properties of the listener", py::arg("cone"));
+    listener.def("get_cone", &sf::Listener::getCone, "Get the cone properties of the listener");
+    listener.def("set_up_vector", &sf::Listener::setUpVector, "Set the upward vector of the listener", py::arg("upVector"));
+    listener.def("get_up_vector", &sf::Listener::getUpVector, "Get the upward vector of the listener");
 }
 
 void bind_sound_source(py::module& m) {
-    py::enum_<sf::SoundSource::Status>(m, "SoundSourceStatus")
+    py::class_<sf::SoundSource, std::unique_ptr<sf::SoundSource, py::nodelete>> sound_source(m, "SoundSource");
+
+    py::enum_<sf::SoundSource::Status>(sound_source, "Status")
     .value("Stopped", sf::SoundSource::Status::Stopped)
     .value("Paused", sf::SoundSource::Status::Paused)
     .value("Playing", sf::SoundSource::Status::Playing)
     .export_values();
     
-    py::class_<sf::SoundSource::Cone>(m, "Cone")
+    py::class_<sf::SoundSource::Cone>(sound_source, "Cone")
     .def(py::init<>())
     .def_readwrite("inner_angle", &sf::SoundSource::Cone::innerAngle)
     .def_readwrite("outer_angle", &sf::SoundSource::Cone::outerAngle)
     .def_readwrite("outer_gain", &sf::SoundSource::Cone::outerGain);
 
-    py::class_<sf::SoundSource, std::unique_ptr<sf::SoundSource, py::nodelete>>(m, "SoundSource")
-    .def("set_pitch", &sf::SoundSource::setPitch)
+    sound_source.def("set_pitch", &sf::SoundSource::setPitch)
     .def("set_pan", &sf::SoundSource::setPan)
     .def("set_volume", &sf::SoundSource::setVolume)
     .def("set_spatialization_enabled", &sf::SoundSource::setSpatializationEnabled)
@@ -135,11 +138,13 @@ void bind_sound_buffer(py::module& m) {
 }
 
 void bind_playback_device(py::module& m) {
-    m.def("get_available_devices", []() {
+    py::module_ playback_device = m.def_submodule("PlaybackDevice");
+
+    playback_device.def("get_available_devices", []() {
         return sf::PlaybackDevice::getAvailableDevices();
     });
 
-    m.def("get_default_device", []() {
+    playback_device.def("get_default_device", []() {
         auto result = sf::PlaybackDevice::getDefaultDevice();
         if (result) {
             return *result;
@@ -148,11 +153,11 @@ void bind_playback_device(py::module& m) {
         }
     });
 
-    m.def("set_device", [](const std::string& name) {
+    playback_device.def("set_device", [](const std::string& name) {
         return sf::PlaybackDevice::setDevice(name);
     });
 
-    m.def("get_device", []() {
+    playback_device.def("get_device", []() {
         auto result = sf::PlaybackDevice::getDevice();
         if (result) {
             return *result;
@@ -217,9 +222,8 @@ void bind_sound_recorder(py::module& m) {
 void bind_sound_buffer_recorder(py::module& m) {
     py::class_<sf::SoundBufferRecorder, sf::SoundRecorder>(m, "SoundBufferRecorder")
     .def(py::init<>())
-    .def("get_buffer", &sf::SoundBufferRecorder::getBuffer, py::return_value_policy::reference);
-
-    m.def("is_sound_buffer_recorder_available", &sf::SoundBufferRecorder::isAvailable); 
+    .def("get_buffer", &sf::SoundBufferRecorder::getBuffer, py::return_value_policy::reference)
+    .def("is_sound_buffer_recorder_available", &sf::SoundBufferRecorder::isAvailable); 
 }
 
 void bind_input_sound_file(py::module& m) {
