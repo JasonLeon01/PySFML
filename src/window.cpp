@@ -19,6 +19,7 @@ void bind_base_window(py::module_ &m) {
     .def("set_icon", &sf::WindowBase::setIcon)
     .def("set_visible", &sf::WindowBase::setVisible)
     .def("set_mouse_cursor_visible", &sf::WindowBase::setMouseCursorVisible)
+    .def("setMouseCursorGrabbed", &sf::WindowBase::setMouseCursorGrabbed)
     .def("set_mouse_cursor", &sf::WindowBase::setMouseCursor)
     .def("set_key_repeat_enabled", &sf::WindowBase::setKeyRepeatEnabled)
     .def("set_joystick_threshold", &sf::WindowBase::setJoystickThreshold)
@@ -34,31 +35,19 @@ void bind_window(py::module_ &m) {
     .def("close", &sf::Window::close)
     .def("setVerticalSyncEnabled", &sf::Window::setVerticalSyncEnabled)
     .def("setFramerateLimit", &sf::Window::setFramerateLimit)
-    .def("setActive", &sf::Window::setActive)
+    .def("set_active", &sf::Window::setActive)
     .def("display", &sf::Window::display)
-    .def("getSettings", &sf::Window::getSettings)
-    .def("isOpen", &sf::Window::isOpen)
-    .def("pollEvent", &sf::Window::pollEvent)
-    .def("waitEvent", &sf::Window::waitEvent)
-    .def("getSize", &sf::Window::getSize)
-    .def("getPosition", &sf::Window::getPosition)
-    .def("setPosition", &sf::Window::setPosition)
-    .def("setTitle", &sf::Window::setTitle)
-    .def("setIcon", &sf::Window::setIcon)
-    .def("setMouseCursorVisible", &sf::Window::setMouseCursorVisible)
-    .def("setMouseCursorGrabbed", &sf::Window::setMouseCursorGrabbed)
-    .def("setMouseCursor", &sf::Window::setMouseCursor)
-    .def("setKeyRepeatEnabled", &sf::Window::setKeyRepeatEnabled)
-    .def("requestFocus", &sf::Window::requestFocus)
-    .def("hasFocus", &sf::Window::hasFocus);
+    .def("get_settings", &sf::Window::getSettings);
 }
 
 void bind_clipboard(py::module &m) {
-    m.def("get_string", []() {
+    py::module_ clipboard = m.def_submodule("Clipboard");
+
+    clipboard.def("get_string", []() {
         sf::String content = sf::Clipboard::getString();
         return std::string(content);
     });
-    m.def("set_string", [](const std::string& text) {
+    clipboard.def("set_string", [](const std::string& text) {
         sf::Clipboard::setString(sf::String(text));
     });
 }
@@ -79,17 +68,16 @@ void bind_joystick(py::module &m) {
 
     py::class_<sf::Joystick::Identification>(joystick, "Identification")
     .def(py::init<>())
-    .def_readwrite("name", &sf::Joystick::Identification::name)
-    .def_readwrite("vendor_id", &sf::Joystick::Identification::vendorId)
-    .def_readwrite("product_id", &sf::Joystick::Identification::productId)
-    .def_property("name", 
+    .def("name", 
         [](sf::Joystick::Identification& self) -> std::string {
             return self.name.toAnsiString();
-        },
+        })
+    .def("set_name", 
         [](sf::Joystick::Identification& self, const std::string& value) {
             self.name = value;
-        }
-    );
+        })
+    .def_readwrite("vendor_id", &sf::Joystick::Identification::vendorId)
+    .def_readwrite("product_id", &sf::Joystick::Identification::productId);
 
     joystick.def("is_connected", &sf::Joystick::isConnected);
     joystick.def("get_button_count", &sf::Joystick::getButtonCount);
@@ -375,7 +363,7 @@ void bind_keyboard(py::module_ &m) {
 void bind_mouse(py::module_ &m) {
     py::module_ mouse = m.def_submodule("Mouse");
 
-    py::enum_<sf::Mouse::Button>(mouse, "MouseButton")
+    py::enum_<sf::Mouse::Button>(mouse, "Button")
     .value("Left", sf::Mouse::Button::Left)
     .value("Right", sf::Mouse::Button::Right)
     .value("Middle", sf::Mouse::Button::Middle)
@@ -383,7 +371,7 @@ void bind_mouse(py::module_ &m) {
     .value("Extra2", sf::Mouse::Button::Extra2)
     .export_values();
     
-    py::enum_<sf::Mouse::Wheel>(mouse, "MouseWheel")
+    py::enum_<sf::Mouse::Wheel>(mouse, "Wheel")
     .value("Vertical", sf::Mouse::Wheel::Vertical)
     .value("Horizontal", sf::Mouse::Wheel::Horizontal)
     .export_values();
@@ -408,7 +396,7 @@ void bind_mouse(py::module_ &m) {
 void bind_sensor(py::module_ &m) {
     py::module_ sensor = m.def_submodule("Sensor");
 
-    py::enum_<sf::Sensor::Type>(sensor, "SensorType")
+    py::enum_<sf::Sensor::Type>(sensor, "Type")
     .value("Accelerometer", sf::Sensor::Type::Accelerometer)
     .value("Gyroscope", sf::Sensor::Type::Gyroscope)
     .value("Magnetometer", sf::Sensor::Type::Magnetometer)

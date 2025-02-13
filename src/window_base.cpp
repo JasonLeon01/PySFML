@@ -15,19 +15,8 @@ void bind_enum(py::module_ &m) {
 }
 
 void bind_context(py::module_ &m) {
-    py::class_<sf::Context>(m, "Context")
-    .def(py::init<>())
-    .def("set_active", &sf::Context::setActive)
-    .def("get_settings", &sf::Context::getSettings);
-    
     py::class_<sf::ContextSettings> context_settings(m, "ContextSettings");
 
-    py::enum_<sf::ContextSettings::Attribute>(context_settings, "Attribute")
-    .value("Default", sf::ContextSettings::Default)
-    .value("Core", sf::ContextSettings::Core)
-    .value("Debug", sf::ContextSettings::Debug)
-    .export_values();
-    
     context_settings.def(py::init<>())
     .def_readonly("depthBits", &sf::ContextSettings::depthBits)
     .def_readonly("stencilBits", &sf::ContextSettings::stencilBits)
@@ -35,7 +24,20 @@ void bind_context(py::module_ &m) {
     .def_readonly("majorVersion", &sf::ContextSettings::majorVersion)
     .def_readonly("minorVersion", &sf::ContextSettings::minorVersion)
     .def_readonly("attributeFlags", &sf::ContextSettings::attributeFlags)
-    .def_readonly("sRgbCapable", &sf::ContextSettings::sRgbCapable);    
+    .def_readonly("sRgbCapable", &sf::ContextSettings::sRgbCapable);
+
+    py::class_<sf::Context>(m, "Context")
+    .def(py::init<>())
+    .def(py::init<const sf::ContextSettings&, sf::Vector2u>())
+    .def("set_active", &sf::Context::setActive)
+    .def("get_settings", &sf::Context::getSettings);
+    
+    py::enum_<sf::ContextSettings::Attribute>(context_settings, "Attribute")
+    .value("Default", sf::ContextSettings::Default)
+    .value("Core", sf::ContextSettings::Core)
+    .value("Debug", sf::ContextSettings::Debug)
+    .export_values();
+    
 }
 
 void bind_cursor(py::module_ &m) {
@@ -65,6 +67,7 @@ void bind_cursor(py::module_ &m) {
     .value("NotAllowed", sf::Cursor::Type::NotAllowed);
     
     cursor.def(py::init<sf::Cursor::Type>())
+    .def(py::init<const std::uint8_t*, sf::Vector2u, sf::Vector2u>())
     .def("createFromPixels", &sf::Cursor::createFromPixels)
     .def("createFromSystem", &sf::Cursor::createFromSystem);
 }
@@ -226,7 +229,53 @@ void bind_event(py::module_ &m) {
     .def("isTouchBegan", [](sf::Event& event) { return event.is<sf::Event::TouchBegan>(); })
     .def("isTouchMoved", [](sf::Event& event) { return event.is<sf::Event::TouchMoved>(); })
     .def("isTouchEnded", [](sf::Event& event) { return event.is<sf::Event::TouchEnded>(); })
-    .def("isSensorChanged", [](sf::Event& event) { return event.is<sf::Event::SensorChanged>(); });
+    .def("isSensorChanged", [](sf::Event& event) { return event.is<sf::Event::SensorChanged>(); })
+    .def("getIfClosed", [](sf::Event& event) { return event.getIf<sf::Event::Closed>(); })
+    .def("getIfResized", [](sf::Event& event) { return event.getIf<sf::Event::Resized>(); })
+    .def("getIfFocused", [](sf::Event& event) { return event.getIf<sf::Event::FocusLost>(); })
+    .def("getIfFocused", [](sf::Event& event) { return event.getIf<sf::Event::FocusGained>(); })
+    .def("getIfTextEntered", [](sf::Event& event) { return event.getIf<sf::Event::TextEntered>(); })
+    .def("getIfKeyPressed", [](sf::Event& event) { return event.getIf<sf::Event::KeyPressed>(); })
+    .def("getIfKeyReleased", [](sf::Event& event) { return event.getIf<sf::Event::KeyReleased>(); })
+    .def("getIfMouseWheelScrolled", [](sf::Event& event) { return event.getIf<sf::Event::MouseWheelScrolled>(); })
+    .def("getIfMouseButtonPressed", [](sf::Event& event) { return event.getIf<sf::Event::MouseButtonPressed>(); })
+    .def("getIfMouseButtonReleased", [](sf::Event& event) { return event.getIf<sf::Event::MouseButtonReleased>(); })
+    .def("getIfMouseMoved", [](sf::Event& event) { return event.getIf<sf::Event::MouseMoved>(); })
+    .def("getIfMouseMovedRaw", [](sf::Event& event) { return event.getIf<sf::Event::MouseMovedRaw>(); })
+    .def("getIfMouseEntered", [](sf::Event& event) { return event.getIf<sf::Event::MouseEntered>(); })
+    .def("getIfMouseLeft", [](sf::Event& event) { return event.getIf<sf::Event::MouseLeft>(); })
+    .def("getIfJoystickButtonPressed", [](sf::Event& event) { return event.getIf<sf::Event::JoystickButtonPressed>(); })
+    .def("getIfJoystickButtonReleased", [](sf::Event& event) { return event.getIf<sf::Event::JoystickButtonReleased>(); })
+    .def("getIfJoystickMoved", [](sf::Event& event) { return event.getIf<sf::Event::JoystickMoved>(); })
+    .def("getIfJoystickConnected", [](sf::Event& event) { return event.getIf<sf::Event::JoystickConnected>(); })
+    .def("getIfJoystickDisconnected", [](sf::Event& event) { return event.getIf<sf::Event::JoystickDisconnected>(); })
+    .def("getIfTouchBegan", [](sf::Event& event) { return event.getIf<sf::Event::TouchBegan>(); })
+    .def("getIfTouchMoved", [](sf::Event& event) { return event.getIf<sf::Event::TouchMoved>(); })
+    .def("getIfTouchEnded", [](sf::Event& event) { return event.getIf<sf::Event::TouchEnded>(); })
+    .def("getIfSensorChanged", [](sf::Event& event) { return event.getIf<sf::Event::SensorChanged>(); });
+    // .def("visitClosed", [](sf::Event& event, sf::Event::Closed&& visitor) { return event.visit(visitor); })
+    // .def("visitResized", [](sf::Event& event, sf::Event::Resized&& visitor) { return event.visit(visitor); })
+    // .def("visitFocused", [](sf::Event& event, sf::Event::FocusLost&& visitor) { return event.visit(visitor); })
+    // .def("visitFocused", [](sf::Event& event, sf::Event::FocusGained&& visitor) { return event.visit(visitor); })
+    // .def("visitTextEntered", [](sf::Event& event, sf::Event::TextEntered&& visitor) { return event.visit(visitor); })
+    // .def("visitKeyPressed", [](sf::Event& event, sf::Event::KeyPressed&& visitor) { return event.visit(visitor); })
+    // .def("visitKeyReleased", [](sf::Event& event, sf::Event::KeyReleased&& visitor) { return event.visit(visitor); })
+    // .def("visitMouseWheelScrolled", [](sf::Event& event, sf::Event::MouseWheelScrolled&& visitor) { return event.visit(visitor); })
+    // .def("visitMouseButtonPressed", [](sf::Event& event, sf::Event::MouseButtonPressed&& visitor) { return event.visit(visitor); })
+    // .def("visitMouseButtonReleased", [](sf::Event& event, sf::Event::MouseButtonReleased&& visitor) { return event.visit(visitor); })
+    // .def("visitMouseMoved", [](sf::Event& event, sf::Event::MouseMoved&& visitor) { return event.visit(visitor); })
+    // .def("visitMouseMovedRaw", [](sf::Event& event, sf::Event::MouseMovedRaw&& visitor) { return event.visit(visitor); })
+    // .def("visitMouseEntered", [](sf::Event& event, sf::Event::MouseEntered&& visitor) { return event.visit(visitor); })
+    // .def("visitMouseLeft", [](sf::Event& event, sf::Event::MouseLeft&& visitor) { return event.visit(visitor); })
+    // .def("visitJoystickButtonPressed", [](sf::Event& event, sf::Event::JoystickButtonPressed&& visitor) { return event.visit(visitor); })
+    // .def("visitJoystickButtonReleased", [](sf::Event& event, sf::Event::JoystickButtonReleased&& visitor) { return event.visit(visitor); })
+    // .def("visitJoystickMoved", [](sf::Event& event, sf::Event::JoystickMoved&& visitor) { return event.visit(visitor); })
+    // .def("visitJoystickConnected", [](sf::Event& event, sf::Event::JoystickConnected&& visitor) { return event.visit(visitor); })
+    // .def("visitJoystickDisconnected", [](sf::Event& event, sf::Event::JoystickDisconnected&& visitor) { return event.visit(visitor); })
+    // .def("visitTouchBegan", [](sf::Event& event, sf::Event::TouchBegan&& visitor) { return event.visit(visitor); })
+    // .def("visitTouchMoved", [](sf::Event& event, sf::Event::TouchMoved&& visitor) { return event.visit(visitor); })
+    // .def("visitTouchEnded", [](sf::Event& event, sf::Event::TouchEnded&& visitor) { return event.visit(visitor); })
+    // .def("visitSensorChanged", [](sf::Event& event, sf::Event::SensorChanged& visitor) { return event.visit(visitor); });
 }
 
 void bind_video_mode(py::module_ &m) {
