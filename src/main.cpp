@@ -47,10 +47,10 @@ PYBIND11_MODULE(pysf, m) {
     bind_font(m);
     bind_glyph(m);
     bind_image(m);
+    
     bind_convex_shape(m);
     bind_circle_shape(m);
     bind_rectangle_shape(m);
-    
     bind_render_states(m);
     bind_render_target(m);
     bind_render_texture(m);

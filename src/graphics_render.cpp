@@ -1,5 +1,59 @@
 #include <graphics_render.h>
 
+void bind_image(py::module_ &m) {
+    py::class_<sf::Image>(m, "Image")
+    .def(py::init<>())
+    .def(py::init<sf::Vector2u, sf::Color>(), py::arg("size"), py::arg("color") = sf::Color::Black)
+    .def(py::init<sf::Vector2u, const uint8_t*>(), py::arg("size"), py::arg("pixels"))
+    .def(py::init<const void*, std::size_t>(), py::arg("data"), py::arg("size"))
+    .def(py::init<sf::InputStream&>(), py::arg("stream"))
+    .def("resize", (void (sf::Image::*)(sf::Vector2u, sf::Color)) &sf::Image::resize, py::arg("size"), py::arg("color") = sf::Color::Black)
+    .def("resize", (void (sf::Image::*)(sf::Vector2u, const uint8_t*)) &sf::Image::resize, py::arg("size"), py::arg("pixels"))
+    .def("load_from_file", &sf::Image::loadFromFile, py::arg("filename"))
+    .def("load_from_memory", &sf::Image::loadFromMemory, py::arg("data"), py::arg("size"))
+    .def("load_from_stream", &sf::Image::loadFromStream, py::arg("stream"))
+    .def("save_to_file", &sf::Image::saveToFile, py::arg("filename"))
+    .def("save_to_memory", &sf::Image::saveToMemory, py::arg("format"))
+    .def("get_size", &sf::Image::getSize)
+    .def("create_mask_from_color", &sf::Image::createMaskFromColor, py::arg("color"), py::arg("alpha") = 0)
+    .def("copy", &sf::Image::copy, py::arg("source"), py::arg("dest"), py::arg("source_rect") = sf::IntRect(), py::arg("apply_alpha") = false)
+    .def("set_pixel", &sf::Image::setPixel, py::arg("coords"), py::arg("color"))
+    .def("get_pixel", &sf::Image::getPixel, py::arg("coords"))
+    .def("get_pixels_ptr", &sf::Image::getPixelsPtr)
+    .def("flip_horizontally", &sf::Image::flipHorizontally)
+    .def("flip_vertically", &sf::Image::flipVertically);
+}
+
+void bind_convex_shape(py::module_ &m) {
+    py::class_<sf::ConvexShape, sf::Shape>(m, "ConvexShape")
+    .def(py::init<std::size_t>(), py::arg("pointCount") = 0)
+    .def("set_point_count", &sf::ConvexShape::setPointCount, py::arg("count"))
+    .def("get_point_count", &sf::ConvexShape::getPointCount)
+    .def("set_point", &sf::ConvexShape::setPoint, py::arg("index"), py::arg("point"))
+    .def("get_point", &sf::ConvexShape::getPoint, py::arg("index"));
+}
+
+void bind_circle_shape(py::module_ &m) {
+    py::class_<sf::CircleShape, sf::Shape>(m, "CircleShape")
+    .def(py::init<float, std::size_t>(), py::arg("radius") = 0, py::arg("point_count") = 30)
+    .def("set_radius", &sf::CircleShape::setRadius)
+    .def("get_radius", &sf::CircleShape::getRadius)
+    .def("set_point_count", &sf::CircleShape::setPointCount)
+    .def("get_point_count", &sf::CircleShape::getPointCount)
+    .def("get_point", &sf::CircleShape::getPoint, py::arg("index"))
+    .def("get_geometric_center", &sf::CircleShape::getGeometricCenter);
+}
+
+void bind_rectangle_shape(py::module_ &m) {
+    py::class_<sf::RectangleShape, sf::Shape>(m, "RectangleShape")
+    .def(py::init<sf::Vector2f>(), py::arg("size") = sf::Vector2f{})
+    .def("set_size", &sf::RectangleShape::setSize, py::arg("size"))
+    .def("get_size", &sf::RectangleShape::getSize)
+    .def("get_point_count", &sf::RectangleShape::getPointCount)
+    .def("get_point", &sf::RectangleShape::getPoint, py::arg("index"))
+    .def("get_geometric_center", &sf::RectangleShape::getGeometricCenter);
+}
+
 void bind_render_states(py::module_ &m) {
     py::class_<sf::RenderStates>(m, "RenderStates")
     .def(py::init<>())

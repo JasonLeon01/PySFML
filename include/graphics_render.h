@@ -15,6 +15,9 @@ namespace py = pybind11;
 #  define SFML_API
 #endif
 
+void bind_convex_shape(py::module_& m);
+void bind_circle_shape(py::module_& m);
+void bind_rectangle_shape(py::module_& m);
 void bind_render_states(py::module_& m);
 void bind_render_target(py::module_& m);
 void bind_render_texture(py::module_& m);

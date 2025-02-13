@@ -38,6 +38,3 @@ void bind_color(py::module_& m);
 void bind_font(py::module_& m);
 void bind_glyph(py::module_& m);
 void bind_image(py::module_& m);
-void bind_convex_shape(py::module_& m);
-void bind_circle_shape(py::module_& m);
-void bind_rectangle_shape(py::module_& m);
