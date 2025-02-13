@@ -5,6 +5,12 @@ void bind_base_window(py::module_ &m) {
     .def(py::init<>())
     .def(py::init<sf::VideoMode, const std::string&, std::uint32_t, sf::State>(), py::arg("mode"), py::arg("title"), py::arg("style") = 7/*sf::Style::Default*/, py::arg("state") = sf::State::Windowed)
     .def(py::init<sf::VideoMode, const std::string&, sf::State>(), py::arg("mode"), py::arg("title"), py::arg("state") = sf::State::Windowed)
+    .def("create", [](sf::WindowBase& self, sf::VideoMode mode, const std::string& title, std::uint32_t style, sf::State state) {
+       self.create(mode, title, style, state); 
+    }, py::arg("mode"), py::arg("title"), py::arg("style") = 7/*sf::Style::Default*/, py::arg("state") = sf::State::Windowed)
+    .def("create", [](sf::WindowBase& self, sf::VideoMode mode, const std::string& title, sf::State state) {
+       self.create(mode, title, state);
+    }, py::arg("mode"), py::arg("title"), py::arg("state") = sf::State::Windowed)
     .def("is_open", &sf::WindowBase::isOpen)
     .def("close", &sf::WindowBase::close)
     .def("poll_event", &sf::WindowBase::pollEvent)
@@ -32,9 +38,18 @@ void bind_window(py::module_ &m) {
     .def(py::init<>())
     .def(py::init<sf::VideoMode, const std::string&, std::uint32_t, sf::State&, const sf::ContextSettings&>(), py::arg("mode"), py::arg("title"), py::arg("style") = 7/*sf::Style::Default*/, py::arg("state") = sf::State::Windowed, py::arg("settings") = sf::ContextSettings())
     .def(py::init<sf::VideoMode, const std::string&, sf::State, const sf::ContextSettings&>(), py::arg("mode"), py::arg("title"), py::arg("state") = sf::State::Windowed, py::arg("settings") = sf::ContextSettings())
+    .def("create", [](sf::Window& self, sf::VideoMode mode, const std::string& title, sf::State state) {
+       self.create(mode, title, state);
+    }, py::arg("mode"), py::arg("title"), py::arg("state"))
+    .def("create", [](sf::Window& self, sf::VideoMode mode, const std::string& title, std::uint32_t style, sf::State state) {
+       self.create(mode, title, style, state); 
+    }, py::arg("mode"), py::arg("title"), py::arg("style") = 7/*sf::Style::Default*/, py::arg("state") = sf::State::Windowed)
+    .def("create", [](sf::Window& self, sf::VideoMode mode, const std::string& title, std::uint32_t style, sf::State state, const sf::ContextSettings& settings) {
+       self.create(mode, title, style, state, settings);
+    }, py::arg("mode"), py::arg("title"), py::arg("style"), py::arg("state"), py::arg("settings"))
     .def("close", &sf::Window::close)
-    .def("setVerticalSyncEnabled", &sf::Window::setVerticalSyncEnabled)
-    .def("setFramerateLimit", &sf::Window::setFramerateLimit)
+    .def("set_vertical_sync_enabled", &sf::Window::setVerticalSyncEnabled)
+    .def("set_framerate_limit", &sf::Window::setFramerateLimit)
     .def("set_active", &sf::Window::setActive)
     .def("display", &sf::Window::display)
     .def("get_settings", &sf::Window::getSettings);
