@@ -238,10 +238,16 @@ void bind_color(py::module_ &m) {
 }
 
 void bind_font(py::module_ &m) {
-    py::class_<sf::Font>(m, "Font")
+    py::class_<sf::Font> font(m, "Font");
+
+    py::class_<sf::Font::Info>(font, "Info")
     .def(py::init<>())
+    .def_readwrite("family", &sf::Font::Info::family);
+
+    font.def(py::init<>())
     .def(py::init<const void*, std::size_t>())
     .def(py::init<sf::InputStream&>())
+    .def(py::init<const std::string&>())
     
     .def("open_from_file", &sf::Font::openFromFile)
     .def("open_from_memory", &sf::Font::openFromMemory)
