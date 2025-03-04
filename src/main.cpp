@@ -1,6 +1,7 @@
 #include <system.h>
 #include <window_base.h>
 #include <window.h>
+#include <graphics_type.h>
 #include <graphics_base.h>
 #include <graphics_render.h>
 #include <graphics_core.h>
@@ -35,9 +36,11 @@ PYBIND11_MODULE(pysf, m) {
     bind_sensor(m);
     bind_touch(m);
     
+    bind_glsl(m);
     bind_type(m);
     bind_rect<int>(m, "IntRect");
     bind_rect<float>(m, "FloatRect");
+
     bind_blend_mode(m);
     bind_transform(m);
     bind_transformable(m);
@@ -46,8 +49,8 @@ PYBIND11_MODULE(pysf, m) {
     bind_color(m);
     bind_font(m);
     bind_glyph(m);
-    bind_image(m);
     
+    bind_image(m);
     bind_convex_shape(m);
     bind_circle_shape(m);
     bind_rectangle_shape(m);

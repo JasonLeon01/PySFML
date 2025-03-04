@@ -25,6 +25,7 @@ add_library(pysf SHARED
                 "src/system.cpp" 
                 "src/window_base.cpp" 
                 "src/window.cpp" 
+                "src/graphics_type.cpp"
                 "src/graphics_base.cpp" 
                 "src/graphics_render.cpp" 
                 "src/graphics_core.cpp" 

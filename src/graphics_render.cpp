@@ -155,6 +155,15 @@ void bind_shader(py::module& m) {
     .export_values();
 
     shader.def(py::init<>())
+    .def(py::init([](const std::string& filename, sf::Shader::Type type) {
+        return std::make_unique<sf::Shader>(std::filesystem::path(filename), type);
+    }))
+    .def(py::init([](const std::string& vertexShaderFilename, const std::string& fragmentShaderFilename) {
+        return std::make_unique<sf::Shader>(std::filesystem::path(vertexShaderFilename), std::filesystem::path(fragmentShaderFilename));
+    }))
+    .def(py::init([](const std::string& vertexShaderFilename, const std::string& geometryShaderFilename, const std::string& fragmentShaderFilename) {
+        return std::make_unique<sf::Shader>(std::filesystem::path(vertexShaderFilename), std::filesystem::path(geometryShaderFilename), std::filesystem::path(fragmentShaderFilename));
+    }))
     .def("load_from_file", [](sf::Shader& self, const std::string& filename, sf::Shader::Type type) {
         return self.loadFromFile(filename, type);
     }, py::arg("filename"), py::arg("type"))

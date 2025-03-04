@@ -82,7 +82,6 @@ void bind_stencil_mode(py::module& m) {
 
     py::class_<sf::StencilValue>(m, "StencilValue")
     .def(py::init<int>())
-    .def(py::init<unsigned int>())
     .def_readwrite("value", &sf::StencilValue::value);
 
     py::class_<sf::StencilMode>(m, "StencilMode")
@@ -101,10 +100,19 @@ void bind_stencil_mode(py::module& m) {
 }
 
 void bind_text(py::module& m) {
-    py::class_<sf::Text, sf::Transformable, sf::Drawable>(m, "Text")
-    .def(py::init<const sf::Font&, std::string, unsigned int>(),
+    py::class_<sf::Text, sf::Transformable, sf::Drawable> text(m, "Text");
+    py::enum_<sf::Text::Style>(text, "Style")
+    .value("Regular", sf::Text::Regular)
+    .value("Bold", sf::Text::Bold)
+    .value("Italic", sf::Text::Italic)
+    .value("Underlined", sf::Text::Underlined)
+    .value("StrikeThrough", sf::Text::StrikeThrough);
+
+    text.def(py::init<const sf::Font&, std::string, unsigned int>(),
          py::arg("font"), py::arg("string") = "", py::arg("character_size") = 30)
-    .def("set_string", &sf::Text::setString)
+    .def("set_string", [](sf::Text& self, const std::string& string) {
+        self.setString(sf::String::fromUtf8(string.begin(), string.end()));
+    })
     .def("set_font", [](sf::Text& self, const sf::Font& font) {
        self.setFont(font);
     })
@@ -115,7 +123,9 @@ void bind_text(py::module& m) {
     .def("set_fill_color", &sf::Text::setFillColor)
     .def("set_outline_color", &sf::Text::setOutlineColor)
     .def("set_outline_thickness", &sf::Text::setOutlineThickness)
-    .def("get_string", &sf::Text::getString)
+    .def("get_string", [](sf::Text& self) {
+        return self.getString().toUtf8();
+    })
     .def("get_font", &sf::Text::getFont)
     .def("get_character_size", &sf::Text::getCharacterSize)
     .def("get_letter_spacing", &sf::Text::getLetterSpacing)
@@ -134,19 +144,19 @@ void bind_view(py::module& m) {
     .def(py::init<>())
     .def(py::init<const sf::FloatRect&>())
     .def(py::init<sf::Vector2f, sf::Vector2f>())
-    .def("setCenter", &sf::View::setCenter)
-    .def("setSize", &sf::View::setSize)
-    .def("setRotation", &sf::View::setRotation)
-    .def("setViewport", &sf::View::setViewport)
-    .def("setScissor", &sf::View::setScissor)
-    .def("getCenter", &sf::View::getCenter)
-    .def("getSize", &sf::View::getSize)
-    .def("getRotation", &sf::View::getRotation)
-    .def("getViewport", &sf::View::getViewport)
-    .def("getScissor", &sf::View::getScissor)
+    .def("set_center", &sf::View::setCenter)
+    .def("set_size", &sf::View::setSize)
+    .def("set_rotation", &sf::View::setRotation)
+    .def("set_viewport", &sf::View::setViewport)
+    .def("set_scissor", &sf::View::setScissor)
+    .def("get_center", &sf::View::getCenter)
+    .def("get_size", &sf::View::getSize)
+    .def("get_rotation", &sf::View::getRotation)
+    .def("get_viewport", &sf::View::getViewport)
+    .def("get_scissor", &sf::View::getScissor)
     .def("move", &sf::View::move)
     .def("rotate", &sf::View::rotate)
     .def("zoom", &sf::View::zoom)
-    .def("getTransform", &sf::View::getTransform)
-    .def("getInverseTransform", &sf::View::getInverseTransform);
+    .def("get_transform", &sf::View::getTransform)
+    .def("get_inverse_transform", &sf::View::getInverseTransform);
 }

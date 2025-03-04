@@ -1,21 +1,5 @@
 #include <graphics_base.h>
 
-void bind_type(py::module_ &m) {
-    py::enum_<sf::CoordinateType>(m, "CoordinateType")
-    .value("Local", sf::CoordinateType::Normalized)
-    .value("Pixels", sf::CoordinateType::Pixels);
-
-    py::enum_<sf::PrimitiveType>(m, "PrimitiveType")
-    .value("Points", sf::PrimitiveType::Points)
-    .value("Lines", sf::PrimitiveType::Lines)
-    .value("LinesStrip", sf::PrimitiveType::LineStrip)
-    .value("Triangles", sf::PrimitiveType::Triangles)
-    .value("TrianglesStrip", sf::PrimitiveType::TriangleStrip)
-    .value("TrianglesFan", sf::PrimitiveType::TriangleFan);
-
-    py::class_<sf::Drawable>(m, "Drawable"); // Pure virtual class
-}
-
 void bind_blend_mode(py::module_ &m) {
     py::class_<sf::BlendMode> blend_mode(m, "BlendMode");
 
