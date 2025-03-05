@@ -47,6 +47,17 @@ void bind_listener(py::module& m) {
     listener.def("get_up_vector", &sf::Listener::getUpVector, "Get the upward vector of the listener");
 }
 
+sf::SoundSource::EffectProcessor wrap_effect_processor(py::function func) {
+    return [func](const float* inputFrames, unsigned int& inputFrameCount,
+                  float* outputFrames, unsigned int& outputFrameCount,
+                  unsigned int frameChannelCount) {
+        py::gil_scoped_acquire gil;  // Python 线程安全
+        func(py::capsule(inputFrames), inputFrameCount,
+             py::capsule(outputFrames), outputFrameCount,
+             frameChannelCount);
+    };
+}
+
 void bind_sound_source(py::module& m) {
     py::class_<sf::SoundSource, std::unique_ptr<sf::SoundSource, py::nodelete>> sound_source(m, "SoundSource");
 
@@ -55,7 +66,7 @@ void bind_sound_source(py::module& m) {
     .value("Paused", sf::SoundSource::Status::Paused)
     .value("Playing", sf::SoundSource::Status::Playing)
     .export_values();
-    
+
     py::class_<sf::SoundSource::Cone>(sound_source, "Cone")
     .def(py::init<>())
     .def_readwrite("inner_angle", &sf::SoundSource::Cone::innerAngle)
@@ -78,7 +89,9 @@ void bind_sound_source(py::module& m) {
     .def("set_min_gain", &sf::SoundSource::setMinGain)
     .def("set_max_gain", &sf::SoundSource::setMaxGain)
     .def("set_attenuation", &sf::SoundSource::setAttenuation)
-    .def("set_effect_processor", &sf::SoundSource::setEffectProcessor)
+    .def("set_effect_processor", [](sf::SoundSource& self, py::function func) {
+        self.setEffectProcessor(wrap_effect_processor(func));
+    })
     .def("get_pitch", &sf::SoundSource::getPitch)
     .def("get_pan", &sf::SoundSource::getPan)
     .def("get_volume", &sf::SoundSource::getVolume)
@@ -120,7 +133,9 @@ void bind_sound_stream(py::module& m) {
 void bind_sound_buffer(py::module& m) {
     py::class_<sf::SoundBuffer>(m, "SoundBuffer")
     .def(py::init<>())
-    .def(py::init<const std::string&>())
+    .def(py::init<>([](const std::string& filename) {
+        return sf::SoundBuffer(filename);
+    }))
     .def(py::init<const void*, std::size_t>())
     .def(py::init<sf::InputStream&>())
     .def(py::init<const std::int16_t*, std::uint64_t, unsigned int, unsigned int, const std::vector<sf::SoundChannel>&>())
@@ -169,7 +184,9 @@ void bind_playback_device(py::module& m) {
 
 void bind_music(py::module& m) {
     py::class_<sf::Music, sf::SoundStream>(m, "Music")
-    .def(py::init<const std::filesystem::path&>())
+    .def(py::init<>([](const std::string& filename) {
+        return sf::Music(filename);
+    }))
     .def(py::init<const void*, std::size_t>())
     .def(py::init<sf::InputStream&>())
     .def(py::init<>())
@@ -188,7 +205,7 @@ void bind_sound(py::module& m) {
     .def("pause", &sf::Sound::pause)
     .def("stop", &sf::Sound::stop)
     .def("setBuffer", [](sf::Sound& self, const sf::SoundBuffer& buffer) {
-        self.setBuffer(buffer); 
+        self.setBuffer(buffer);
     }, py::arg("buffer"))
     .def("setLooping", &sf::Sound::setLooping)
     .def("setPlayingOffset", &sf::Sound::setPlayingOffset)
@@ -223,18 +240,22 @@ void bind_sound_buffer_recorder(py::module& m) {
     py::class_<sf::SoundBufferRecorder, sf::SoundRecorder>(m, "SoundBufferRecorder")
     .def(py::init<>())
     .def("get_buffer", &sf::SoundBufferRecorder::getBuffer, py::return_value_policy::reference)
-    .def("is_sound_buffer_recorder_available", &sf::SoundBufferRecorder::isAvailable); 
+    .def("is_sound_buffer_recorder_available", &sf::SoundBufferRecorder::isAvailable);
 }
 
 void bind_input_sound_file(py::module& m) {
     py::class_<sf::InputSoundFile>(m, "InputSoundFile")
     .def(py::init<>())
-    .def(py::init<const std::string&>(), "from_file")
-    .def(py::init<const void*, std::size_t>(), "from_memory")
-    .def(py::init<sf::InputStream&>(), "from_stream")
-    .def("open_from_file", &sf::InputSoundFile::openFromFile, "Open from file")
-    .def("open_from_memory", &sf::InputSoundFile::openFromMemory, "Open from memory")
-    .def("open_from_stream", &sf::InputSoundFile::openFromStream, "Open from stream")
+    .def(py::init<>([](const std::string& filename) {
+        return sf::InputSoundFile(filename);
+    }))
+    .def(py::init<const void*, std::size_t>())
+    .def(py::init<sf::InputStream&>())
+    .def("open_from_file", [](sf::InputSoundFile& self, const std::string& filename) {
+        return self.openFromFile(filename);
+    })
+    .def("open_from_memory", &sf::InputSoundFile::openFromMemory)
+    .def("open_from_stream", &sf::InputSoundFile::openFromStream)
     .def("get_sample_count", &sf::InputSoundFile::getSampleCount)
     .def("get_channel_count", &sf::InputSoundFile::getChannelCount)
     .def("get_sample_rate", &sf::InputSoundFile::getSampleRate)
@@ -252,7 +273,9 @@ void bind_output_sound_file(py::module_& m)
 {
     py::class_<sf::OutputSoundFile>(m, "OutputSoundFile")
     .def(py::init<>())
-    .def(py::init<const std::string&, unsigned int, unsigned int, const std::vector<sf::SoundChannel>&>())
+    .def(py::init<>([](const std::string& filename, unsigned int sampleRate, unsigned int channelCount, const std::vector<sf::SoundChannel>& channelMap) {
+        return sf::OutputSoundFile(filename, sampleRate, channelCount, channelMap);
+    }))
     .def("open_from_file", &sf::OutputSoundFile::openFromFile)
     .def("write", &sf::OutputSoundFile::write)
     .def("close", &sf::OutputSoundFile::close);

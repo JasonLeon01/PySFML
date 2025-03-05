@@ -6,7 +6,7 @@ void bind_base_window(py::module_ &m) {
     .def(py::init<sf::VideoMode, const std::string&, std::uint32_t, sf::State>(), py::arg("mode"), py::arg("title"), py::arg("style") = 7/*sf::Style::Default*/, py::arg("state") = sf::State::Windowed)
     .def(py::init<sf::VideoMode, const std::string&, sf::State>(), py::arg("mode"), py::arg("title"), py::arg("state") = sf::State::Windowed)
     .def("create", [](sf::WindowBase& self, sf::VideoMode mode, const std::string& title, std::uint32_t style, sf::State state) {
-       self.create(mode, title, style, state); 
+       self.create(mode, title, style, state);
     }, py::arg("mode"), py::arg("title"), py::arg("style") = 7/*sf::Style::Default*/, py::arg("state") = sf::State::Windowed)
     .def("create", [](sf::WindowBase& self, sf::VideoMode mode, const std::string& title, sf::State state) {
        self.create(mode, title, state);
@@ -42,7 +42,7 @@ void bind_window(py::module_ &m) {
        self.create(mode, title, state);
     }, py::arg("mode"), py::arg("title"), py::arg("state"))
     .def("create", [](sf::Window& self, sf::VideoMode mode, const std::string& title, std::uint32_t style, sf::State state) {
-       self.create(mode, title, style, state); 
+       self.create(mode, title, style, state);
     }, py::arg("mode"), py::arg("title"), py::arg("style") = 7/*sf::Style::Default*/, py::arg("state") = sf::State::Windowed)
     .def("create", [](sf::Window& self, sf::VideoMode mode, const std::string& title, std::uint32_t style, sf::State state, const sf::ContextSettings& settings) {
        self.create(mode, title, style, state, settings);
@@ -83,11 +83,11 @@ void bind_joystick(py::module &m) {
 
     py::class_<sf::Joystick::Identification>(joystick, "Identification")
     .def(py::init<>())
-    .def("name", 
-        [](sf::Joystick::Identification& self) -> std::string {
-            return self.name.toAnsiString();
+    .def("get_name",
+        [](sf::Joystick::Identification& self) {
+            return self.name.toUtf8();
         })
-    .def("set_name", 
+    .def("set_name",
         [](sf::Joystick::Identification& self, const std::string& value) {
             self.name = value;
         })
@@ -385,12 +385,12 @@ void bind_mouse(py::module_ &m) {
     .value("Extra1", sf::Mouse::Button::Extra1)
     .value("Extra2", sf::Mouse::Button::Extra2)
     .export_values();
-    
+
     py::enum_<sf::Mouse::Wheel>(mouse, "Wheel")
     .value("Vertical", sf::Mouse::Wheel::Vertical)
     .value("Horizontal", sf::Mouse::Wheel::Horizontal)
     .export_values();
-    
+
     mouse.def("is_button_pressed", &sf::Mouse::isButtonPressed);
     mouse.def("get_position", []() {
         sf::Vector2i position = sf::Mouse::getPosition();
@@ -401,10 +401,10 @@ void bind_mouse(py::module_ &m) {
         return std::make_tuple(position.x, position.y);
     });
     mouse.def("set_position", [](int x, int y) {
-        sf::Mouse::setPosition(sf::Vector2i(x, y)); 
+        sf::Mouse::setPosition(sf::Vector2i(x, y));
     });
     mouse.def("set_position", [](int x, int y, sf::WindowBase& window) {
-        sf::Mouse::setPosition(sf::Vector2i(x, y), window); 
+        sf::Mouse::setPosition(sf::Vector2i(x, y), window);
     });
 }
 
@@ -419,7 +419,7 @@ void bind_sensor(py::module_ &m) {
     .value("UserAcceleration", sf::Sensor::Type::UserAcceleration)
     .value("Orientation", sf::Sensor::Type::Orientation)
     .export_values();
-    
+
     sensor.def("is_available", &sf::Sensor::isAvailable);
     sensor.def("set_enabled", &sf::Sensor::setEnabled);
     sensor.def("get_value", &sf::Sensor::getValue);
