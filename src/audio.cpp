@@ -190,16 +190,29 @@ void bind_music(py::module& m) {
     .def(py::init<const void*, std::size_t>())
     .def(py::init<sf::InputStream&>())
     .def(py::init<>())
-    .def("openFromFile", &sf::Music::openFromFile)
-    .def("openFromMemory", &sf::Music::openFromMemory)
-    .def("openFromStream", &sf::Music::openFromStream)
-    .def("getDuration", &sf::Music::getDuration)
-    .def("getLoopPoints", &sf::Music::getLoopPoints)
-    .def("setLoopPoints", &sf::Music::setLoopPoints);
+    .def("open_from_file", [](sf::Music& self, const std::string& filename) {
+        return self.openFromFile(filename);
+    })
+    .def("open_from_memory", &sf::Music::openFromMemory)
+    .def("open_from_stream", &sf::Music::openFromStream)
+    .def("get_duration", &sf::Music::getDuration)
+    .def("get_loop_points", [](sf::Music& self) {
+        sf::Time offset, length;
+        sf::Music::TimeSpan span = self.getLoopPoints();
+        offset = span.length;
+        length = span.offset;
+        return py::make_tuple(offset, length);
+    })
+    .def("set_loop_points", [](sf::Music& self, py::tuple timePoints) {
+        sf::Time offset = timePoints[0].cast<sf::Time>();
+        sf::Time length = timePoints[1].cast<sf::Time>();
+        sf::Music::TimeSpan span = {offset, length};
+        self.setLoopPoints(span);
+    });
 }
 
 void bind_sound(py::module& m) {
-    py::class_<sf::Sound> (m, "Sound", py::dynamic_attr())
+    py::class_<sf::Sound, sf::SoundSource> (m, "Sound", py::dynamic_attr())
     .def(py::init<const sf::SoundBuffer&>(), py::arg("buffer"))
     .def("play", &sf::Sound::play)
     .def("pause", &sf::Sound::pause)
@@ -240,7 +253,7 @@ void bind_sound_buffer_recorder(py::module& m) {
     py::class_<sf::SoundBufferRecorder, sf::SoundRecorder>(m, "SoundBufferRecorder")
     .def(py::init<>())
     .def("get_buffer", &sf::SoundBufferRecorder::getBuffer, py::return_value_policy::reference)
-    .def("is_sound_buffer_recorder_available", &sf::SoundBufferRecorder::isAvailable);
+    .def_static("is_available", &sf::SoundBufferRecorder::isAvailable);
 }
 
 void bind_input_sound_file(py::module& m) {
@@ -276,7 +289,9 @@ void bind_output_sound_file(py::module_& m)
     .def(py::init<>([](const std::string& filename, unsigned int sampleRate, unsigned int channelCount, const std::vector<sf::SoundChannel>& channelMap) {
         return sf::OutputSoundFile(filename, sampleRate, channelCount, channelMap);
     }))
-    .def("open_from_file", &sf::OutputSoundFile::openFromFile)
+    .def("open_from_file", [](sf::OutputSoundFile& self, const std::string& filename, unsigned int sampleRate, unsigned int channelCount, const std::vector<sf::SoundChannel>& channelMap) {
+        return self.openFromFile(filename, sampleRate, channelCount, channelMap);
+    })
     .def("write", &sf::OutputSoundFile::write)
     .def("close", &sf::OutputSoundFile::close);
 }
