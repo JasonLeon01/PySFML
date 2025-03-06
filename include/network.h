@@ -14,9 +14,9 @@ namespace py = pybind11;
 #  define SFML_API
 #endif
 
+void bind_ip_address(py::module &m);
 void bind_ftp(py::module &m);
 void bind_http(py::module &m);
-void bind_ip_address(py::module &m);
 void bind_packet(py::module_ &m);
 void bind_socket(py::module_ &m);
 void bind_socket_selector(py::module_ &m);

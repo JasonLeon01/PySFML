@@ -28,16 +28,16 @@ void bind_context(py::module_ &m) {
 
     py::class_<sf::Context>(m, "Context")
     .def(py::init<>())
-    .def(py::init<const sf::ContextSettings&, sf::Vector2u>())
-    .def("set_active", &sf::Context::setActive)
+    .def(py::init<const sf::ContextSettings&, sf::Vector2u>(), py::arg("settings"), py::arg("size"))
+    .def("set_active", &sf::Context::setActive, py::arg("active"))
     .def("get_settings", &sf::Context::getSettings);
-    
+
     py::enum_<sf::ContextSettings::Attribute>(context_settings, "Attribute")
     .value("Default", sf::ContextSettings::Default)
     .value("Core", sf::ContextSettings::Core)
     .value("Debug", sf::ContextSettings::Debug)
     .export_values();
-    
+
 }
 
 void bind_cursor(py::module_ &m) {
@@ -65,16 +65,16 @@ void bind_cursor(py::module_ &m) {
     .value("Cross", sf::Cursor::Type::Cross)
     .value("Help", sf::Cursor::Type::Help)
     .value("NotAllowed", sf::Cursor::Type::NotAllowed);
-    
-    cursor.def(py::init<sf::Cursor::Type>())
-    .def(py::init<const std::uint8_t*, sf::Vector2u, sf::Vector2u>())
-    .def("createFromPixels", &sf::Cursor::createFromPixels)
-    .def("createFromSystem", &sf::Cursor::createFromSystem);
+
+    cursor.def(py::init<sf::Cursor::Type>(), py::arg("type"))
+    .def(py::init<const std::uint8_t*, sf::Vector2u, sf::Vector2u>(), py::arg("pixels"), py::arg("size"), py::arg("hotSpot"))
+    .def_static("createFromPixels", &sf::Cursor::createFromPixels, py::arg("pixels"), py::arg("size"), py::arg("hotSpot"))
+    .def_static("createFromSystem", &sf::Cursor::createFromSystem, py::arg("type"));
 }
 
 void bind_event(py::module_ &m) {
     py::class_<sf::Event> event(m, "Event");
-    
+
     py::class_<sf::Event::Closed>(event, "Closed")
     .def(py::init<>());
 
@@ -288,4 +288,3 @@ void bind_video_mode(py::module_ &m) {
     .def_static("get_fullscreen_modes", &sf::VideoMode::getFullscreenModes)
     .def("is_valid", &sf::VideoMode::isValid);
 }
-    

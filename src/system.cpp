@@ -3,8 +3,8 @@
 void bind_angle(py::module &m) {
     py::class_<sf::Angle>(m, "Angle")
     .def(py::init<>())
-    .def_static("degrees", &sf::degrees)
-    .def_static("radians", &sf::radians)
+    .def_static("degrees", &sf::degrees, py::arg("degrees"))
+    .def_static("radians", &sf::radians, py::arg("radians"))
     .def("as_degrees", &sf::Angle::asDegrees)
     .def("as_radians", &sf::Angle::asRadians)
     .def("wrap_signed", &sf::Angle::wrapSigned)
@@ -59,8 +59,8 @@ void bind_input_stream(py::module &m) {
         py::bytes bytes(reinterpret_cast<char*>(samples), count * sizeof(int64_t));
         delete[] samples;
         return bytes;
-    }, "size")
-    .def("seek", &sf::InputStream::seek)
+    }, py::arg("count"))
+    .def("seek", &sf::InputStream::seek, py::arg("position"))
     .def("tell", &sf::InputStream::tell)
     .def_property_readonly("size", &sf::InputStream::getSize);
 
@@ -68,5 +68,5 @@ void bind_input_stream(py::module &m) {
     .def(py::init<>())
     .def("open", [](sf::FileInputStream& self, const std::string& filename) {
         return self.open(filename);
-    });
+    }, py::arg("filename"));
 }

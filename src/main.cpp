@@ -35,7 +35,7 @@ PYBIND11_MODULE(pysf, m) {
     bind_mouse(m);
     bind_sensor(m);
     bind_touch(m);
-    
+
     bind_glsl(m);
     bind_type(m);
     bind_rect<int>(m, "IntRect");
@@ -49,7 +49,7 @@ PYBIND11_MODULE(pysf, m) {
     bind_color(m);
     bind_font(m);
     bind_glyph(m);
-    
+
     bind_image(m);
     bind_convex_shape(m);
     bind_circle_shape(m);
@@ -79,9 +79,9 @@ PYBIND11_MODULE(pysf, m) {
     bind_input_sound_file(m);
     bind_output_sound_file(m);
 
+    bind_ip_address(m);
     bind_ftp(m);
     bind_http(m);
-    bind_ip_address(m);
     bind_packet(m);
     bind_socket(m);
     bind_socket_selector(m);

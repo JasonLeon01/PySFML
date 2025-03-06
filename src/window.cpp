@@ -16,19 +16,19 @@ void bind_base_window(py::module_ &m) {
     .def("poll_event", &sf::WindowBase::pollEvent)
     .def("wait_event", &sf::WindowBase::waitEvent)
     .def("get_position", &sf::WindowBase::getPosition)
-    .def("set_position", &sf::WindowBase::setPosition)
+    .def("set_position", &sf::WindowBase::setPosition, py::arg("position"))
     .def("get_size", &sf::WindowBase::getSize)
-    .def("set_size", &sf::WindowBase::setSize)
-    .def("set_minimum_size", &sf::WindowBase::setMinimumSize)
-    .def("set_maximum_size", &sf::WindowBase::setMaximumSize)
-    .def("set_title", &sf::WindowBase::setTitle)
-    .def("set_icon", &sf::WindowBase::setIcon)
-    .def("set_visible", &sf::WindowBase::setVisible)
-    .def("set_mouse_cursor_visible", &sf::WindowBase::setMouseCursorVisible)
-    .def("setMouseCursorGrabbed", &sf::WindowBase::setMouseCursorGrabbed)
-    .def("set_mouse_cursor", &sf::WindowBase::setMouseCursor)
-    .def("set_key_repeat_enabled", &sf::WindowBase::setKeyRepeatEnabled)
-    .def("set_joystick_threshold", &sf::WindowBase::setJoystickThreshold)
+    .def("set_size", &sf::WindowBase::setSize, py::arg("size"))
+    .def("set_minimum_size", &sf::WindowBase::setMinimumSize, py::arg("size"))
+    .def("set_maximum_size", &sf::WindowBase::setMaximumSize, py::arg("size"))
+    .def("set_title", &sf::WindowBase::setTitle, py::arg("title"))
+    .def("set_icon", &sf::WindowBase::setIcon, py::arg("icon"))
+    .def("set_visible", &sf::WindowBase::setVisible, py::arg("visible"))
+    .def("set_mouse_cursor_visible", &sf::WindowBase::setMouseCursorVisible, py::arg("visible"))
+    .def("set_mouse_cursor_grabbed", &sf::WindowBase::setMouseCursorGrabbed, py::arg("grabbed"))
+    .def("set_mouse_cursor", &sf::WindowBase::setMouseCursor, py::arg("cursor"))
+    .def("set_key_repeat_enabled", &sf::WindowBase::setKeyRepeatEnabled, py::arg("enabled"))
+    .def("set_joystick_threshold", &sf::WindowBase::setJoystickThreshold, py::arg("threshold"))
     .def("request_focus", &sf::WindowBase::requestFocus)
     .def("has_focus", &sf::WindowBase::hasFocus);
 }
@@ -48,9 +48,9 @@ void bind_window(py::module_ &m) {
        self.create(mode, title, style, state, settings);
     }, py::arg("mode"), py::arg("title"), py::arg("style"), py::arg("state"), py::arg("settings"))
     .def("close", &sf::Window::close)
-    .def("set_vertical_sync_enabled", &sf::Window::setVerticalSyncEnabled)
-    .def("set_framerate_limit", &sf::Window::setFramerateLimit)
-    .def("set_active", &sf::Window::setActive)
+    .def("set_vertical_sync_enabled", &sf::Window::setVerticalSyncEnabled, py::arg("enabled"))
+    .def("set_framerate_limit", &sf::Window::setFramerateLimit, py::arg("limit"))
+    .def("set_active", &sf::Window::setActive, py::arg("active") = true)
     .def("display", &sf::Window::display)
     .def("get_settings", &sf::Window::getSettings);
 }
@@ -365,14 +365,14 @@ void bind_keyboard(py::module_ &m) {
     // Binding the functions
     keyboard.def("is_key_pressed", [](sf::Keyboard::Key key) {
         return sf::Keyboard::isKeyPressed(key);
-    });
+    }, py::arg("key"));
     keyboard.def("is_key_pressed", [](sf::Keyboard::Scan scan) {
         return sf::Keyboard::isKeyPressed(scan);
-    });
-    keyboard.def("localize", &sf::Keyboard::localize);
-    keyboard.def("delocalize", &sf::Keyboard::delocalize);
-    keyboard.def("get_description", &sf::Keyboard::getDescription);
-    keyboard.def("set_virtual_keyboard_visible", &sf::Keyboard::setVirtualKeyboardVisible);
+    }, py::arg("scan"));
+    keyboard.def("localize", &sf::Keyboard::localize, py::arg("key"));
+    keyboard.def("delocalize", &sf::Keyboard::delocalize, py::arg("key"));
+    keyboard.def("get_description", &sf::Keyboard::getDescription, py::arg("key"));
+    keyboard.def("set_virtual_keyboard_visible", &sf::Keyboard::setVirtualKeyboardVisible, py::arg("visible"));
 }
 
 void bind_mouse(py::module_ &m) {
@@ -391,7 +391,7 @@ void bind_mouse(py::module_ &m) {
     .value("Horizontal", sf::Mouse::Wheel::Horizontal)
     .export_values();
 
-    mouse.def("is_button_pressed", &sf::Mouse::isButtonPressed);
+    mouse.def("is_button_pressed", &sf::Mouse::isButtonPressed, py::arg("button"));
     mouse.def("get_position", []() {
         sf::Vector2i position = sf::Mouse::getPosition();
         return std::make_tuple(position.x, position.y);
@@ -399,13 +399,13 @@ void bind_mouse(py::module_ &m) {
     mouse.def("get_position", [](sf::WindowBase& window) {
         sf::Vector2i position = sf::Mouse::getPosition(window);
         return std::make_tuple(position.x, position.y);
-    });
+    }, py::arg("window"));
     mouse.def("set_position", [](int x, int y) {
         sf::Mouse::setPosition(sf::Vector2i(x, y));
-    });
+    }, py::arg("x"), py::arg("y"));
     mouse.def("set_position", [](int x, int y, sf::WindowBase& window) {
         sf::Mouse::setPosition(sf::Vector2i(x, y), window);
-    });
+    }, py::arg("x"), py::arg("y"), py::arg("window"));
 }
 
 void bind_sensor(py::module_ &m) {
