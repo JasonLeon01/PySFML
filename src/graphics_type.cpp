@@ -45,17 +45,17 @@ void bind_glsl(py::module_ &m) {
     .def_readwrite("w", &sf::Glsl::Bvec4::w);
 
     py::class_<sf::Glsl::Mat3>(glsl, "Mat3")
-    .def(py::init<>([](const std::vector<float>& v) {
-       return sf::Glsl::Mat3(v.data());
-    }))
-    .def(py::init<const sf::Transform&>())
+    .def(py::init<>([](const std::vector<float>& pointer) {
+       return sf::Glsl::Mat3(pointer.data());
+    }), py::arg("pointer"))
+    .def(py::init<const sf::Transform&>(), py::arg("transform"))
     .def_readwrite("array", &sf::Glsl::Mat3::array);
 
     py::class_<sf::Glsl::Mat4>(glsl, "Mat4")
-    .def(py::init<>([](const std::vector<float>& v) {
-        return sf::Glsl::Mat4(v.data());
-        }))
-    .def(py::init<const sf::Transform&>())
+    .def(py::init<>([](const std::vector<float>& pointer) {
+        return sf::Glsl::Mat4(pointer.data());
+    }), py::arg("pointer"))
+    .def(py::init<const sf::Transform&>(), py::arg("transform"))
     .def_readwrite("array", &sf::Glsl::Mat4::array);
 }
 

@@ -22,7 +22,7 @@ void bind_base_window(py::module_ &m) {
     .def("set_minimum_size", &sf::WindowBase::setMinimumSize, py::arg("size"))
     .def("set_maximum_size", &sf::WindowBase::setMaximumSize, py::arg("size"))
     .def("set_title", &sf::WindowBase::setTitle, py::arg("title"))
-    .def("set_icon", &sf::WindowBase::setIcon, py::arg("icon"))
+    .def("set_icon", &sf::WindowBase::setIcon, py::arg("size"), py::arg("pixels"))
     .def("set_visible", &sf::WindowBase::setVisible, py::arg("visible"))
     .def("set_mouse_cursor_visible", &sf::WindowBase::setMouseCursorVisible, py::arg("visible"))
     .def("set_mouse_cursor_grabbed", &sf::WindowBase::setMouseCursorGrabbed, py::arg("grabbed"))
@@ -421,7 +421,7 @@ void bind_sensor(py::module_ &m) {
     .export_values();
 
     sensor.def("is_available", &sf::Sensor::isAvailable);
-    sensor.def("set_enabled", &sf::Sensor::setEnabled);
+    sensor.def("set_enabled", &sf::Sensor::setEnabled, py::arg("sensor"), py::arg("enabled"));
     sensor.def("get_value", &sf::Sensor::getValue);
 }
 

@@ -52,14 +52,14 @@ void bind_transform(py::module& m) {
     .def(py::init<float, float, float, float, float, float, float, float, float>())
     .def("get_matrix", &sf::Transform::getMatrix)
     .def("get_inverse", &sf::Transform::getInverse)
-    .def("transform_point", &sf::Transform::transformPoint)
-    .def("transform_rect", &sf::Transform::transformRect)
-    .def("combine", &sf::Transform::combine)
-    .def("translate", &sf::Transform::translate)
-    .def("rotate", static_cast<sf::Transform& (sf::Transform::*)(sf::Angle)>(&sf::Transform::rotate))
-    .def("rotate", static_cast<sf::Transform& (sf::Transform::*)(sf::Angle, sf::Vector2f)>(&sf::Transform::rotate))
-    .def("scale", py::overload_cast<sf::Vector2f>(&sf::Transform::scale))
-    .def("scale", py::overload_cast<sf::Vector2f, sf::Vector2f>(&sf::Transform::scale))
+    .def("transform_point", &sf::Transform::transformPoint, py::arg("point"))
+    .def("transform_rect", &sf::Transform::transformRect, py::arg("rect"))
+    .def("combine", &sf::Transform::combine, py::arg("transform"))
+    .def("translate", &sf::Transform::translate, py::arg("offset"))
+    .def("rotate", static_cast<sf::Transform& (sf::Transform::*)(sf::Angle)>(&sf::Transform::rotate), py::arg("angle"))
+    .def("rotate", static_cast<sf::Transform& (sf::Transform::*)(sf::Angle, sf::Vector2f)>(&sf::Transform::rotate), py::arg("angle"), py::arg("center"))
+    .def("scale", py::overload_cast<sf::Vector2f>(&sf::Transform::scale), py::arg("factors"))
+    .def("scale", py::overload_cast<sf::Vector2f, sf::Vector2f>(&sf::Transform::scale), py::arg("factors"), py::arg("center"))
     .def_static("identity", []() {
        return sf::Transform::Identity;
     })
@@ -72,7 +72,7 @@ void bind_transform(py::module& m) {
        return left *= right;
     })
     .def("__eq__", [](const sf::Transform& left, const sf::Transform& right) {
-       return left == right; 
+       return left == right;
     })
     .def("__ne__", [](const sf::Transform& left, const sf::Transform& right) {
        return left!= right;
@@ -82,17 +82,17 @@ void bind_transform(py::module& m) {
 void bind_transformable(py::module& m) {
     py::class_<sf::Transformable>(m, "Transformable")
     .def(py::init<>())
-    .def("set_position", &sf::Transformable::setPosition)
-    .def("set_rotation", &sf::Transformable::setRotation)
-    .def("set_scale", &sf::Transformable::setScale)
-    .def("set_origin", &sf::Transformable::setOrigin)
+    .def("set_position", &sf::Transformable::setPosition, py::arg("position"))
+    .def("set_rotation", &sf::Transformable::setRotation, py::arg("angle"))
+    .def("set_scale", &sf::Transformable::setScale, py::arg("factors"))
+    .def("set_origin", &sf::Transformable::setOrigin, py::arg("origin"))
     .def("get_position", &sf::Transformable::getPosition)
     .def("get_rotation", &sf::Transformable::getRotation)
     .def("get_scale", &sf::Transformable::getScale)
     .def("get_origin", &sf::Transformable::getOrigin)
-    .def("move", &sf::Transformable::move)
-    .def("rotate", &sf::Transformable::rotate)
-    .def("scale", &sf::Transformable::scale)
+    .def("move", &sf::Transformable::move, py::arg("offset"))
+    .def("rotate", &sf::Transformable::rotate, py::arg("angle"))
+    .def("scale", &sf::Transformable::scale, py::arg("factors"))
     .def("get_transform", &sf::Transformable::getTransform)
     .def("get_inverse_transform", &sf::Transformable::getInverseTransform);
 }
@@ -110,9 +110,9 @@ void bind_vertex(py::module& m) {
     .def(py::init<sf::PrimitiveType, std::size_t>())
     .def("get_vertex_count", &sf::VertexArray::getVertexCount)
     .def("clear", &sf::VertexArray::clear)
-    .def("resize", &sf::VertexArray::resize)
-    .def("append", &sf::VertexArray::append)
-    .def("set_primitive_type", &sf::VertexArray::setPrimitiveType)
+    .def("resize", &sf::VertexArray::resize, py::arg("vertexCount"))
+    .def("append", &sf::VertexArray::append, py::arg("vertex"))
+    .def("set_primitive_type", &sf::VertexArray::setPrimitiveType, py::arg("type"))
     .def("get_primitive_type", &sf::VertexArray::getPrimitiveType)
     .def("get_bounds", &sf::VertexArray::getBounds);
 
@@ -127,17 +127,17 @@ void bind_vertex(py::module& m) {
     .def(py::init<sf::PrimitiveType>())
     .def(py::init<sf::VertexBuffer::Usage>())
     .def(py::init<sf::PrimitiveType, sf::VertexBuffer::Usage>())
-    .def("create", &sf::VertexBuffer::create)
+    .def("create", &sf::VertexBuffer::create, py::arg("vertexCount"))
     .def("get_vertex_count", &sf::VertexBuffer::getVertexCount)
-    .def("update", py::overload_cast<const sf::Vertex*>(&sf::VertexBuffer::update))
-    .def("update", py::overload_cast<const sf::Vertex*, std::size_t, unsigned int>(&sf::VertexBuffer::update))
-    .def("update", py::overload_cast<const sf::VertexBuffer&>(&sf::VertexBuffer::update))
-    .def("set_primitive_type", &sf::VertexBuffer::setPrimitiveType)
+    .def("update", py::overload_cast<const sf::Vertex*>(&sf::VertexBuffer::update), py::arg("vertices"))
+    .def("update", py::overload_cast<const sf::Vertex*, std::size_t, unsigned int>(&sf::VertexBuffer::update), py::arg("vertices"), py::arg("vertexCount"), py::arg("offset"))
+    .def("update", py::overload_cast<const sf::VertexBuffer&>(&sf::VertexBuffer::update), py::arg("vertexBuffer"))
+    .def("set_primitive_type", &sf::VertexBuffer::setPrimitiveType, py::arg("type"))
     .def("get_primitive_type", &sf::VertexBuffer::getPrimitiveType)
-    .def("set_usage", &sf::VertexBuffer::setUsage)
+    .def("set_usage", &sf::VertexBuffer::setUsage, py::arg("usage"))
     .def("get_usage", &sf::VertexBuffer::getUsage)
     .def("get_native_handle", &sf::VertexBuffer::getNativeHandle)
-    .def_static("bind", &sf::VertexBuffer::bind)
+    .def_static("bind", &sf::VertexBuffer::bind, py::arg("buffer"))
     .def_static("is_available", &sf::VertexBuffer::isAvailable)
     .def("__copy__", [](const sf::VertexBuffer &self) { return sf::VertexBuffer(self); })
     .def("__deepcopy__", [](const sf::VertexBuffer &self, py::dict) { return sf::VertexBuffer(self); });
@@ -146,11 +146,11 @@ void bind_vertex(py::module& m) {
 
 void bind_shape(py::module_ &m) {
     py::class_<sf::Shape, sf::Transformable, sf::Drawable>(m, "Shape")
-    .def("set_texture", &sf::Shape::setTexture)
-    .def("set_texture_rect", &sf::Shape::setTextureRect)
-    .def("set_fill_color", &sf::Shape::setFillColor)
-    .def("set_outline_color", &sf::Shape::setOutlineColor)
-    .def("set_outline_thickness", &sf::Shape::setOutlineThickness)
+    .def("set_texture", &sf::Shape::setTexture, py::arg("texture"), py::arg("resetRect") = false)
+    .def("set_texture_rect", &sf::Shape::setTextureRect, py::arg("rect"))
+    .def("set_fill_color", &sf::Shape::setFillColor, py::arg("color"))
+    .def("set_outline_color", &sf::Shape::setOutlineColor, py::arg("color"))
+    .def("set_outline_thickness", &sf::Shape::setOutlineThickness, py::arg("thickness"))
     .def("get_texture", &sf::Shape::getTexture)
     .def("get_texture_rect", &sf::Shape::getTextureRect)
     .def("get_fill_color", &sf::Shape::getFillColor)
@@ -165,7 +165,7 @@ void bind_shape(py::module_ &m) {
 
 void bind_color(py::module_ &m) {
     py::class_<sf::Color>(m, "Color")
-    .def(py::init<std::uint8_t, std::uint8_t, std::uint8_t, std::uint8_t>(), 
+    .def(py::init<std::uint8_t, std::uint8_t, std::uint8_t, std::uint8_t>(),
          py::arg("red"), py::arg("green"), py::arg("blue"), py::arg("alpha") = 255)
     .def(py::init<std::uint32_t>(), py::arg("color"))
     .def("to_integer", &sf::Color::toInteger)
@@ -192,7 +192,7 @@ void bind_color(py::module_ &m) {
         return sf::Color(left.r + right.r, left.g + right.g, left.b + right.b, left.a + right.a);
     })
     .def("__sub__", [](const sf::Color& left, const sf::Color& right) {
-        return sf::Color(left.r - right.r, left.g - right.g, left.b - right.b, left.a - right.a); 
+        return sf::Color(left.r - right.r, left.g - right.g, left.b - right.b, left.a - right.a);
     })
     .def("__mul__", [](const sf::Color& left, float right) {
         return sf::Color(static_cast<std::uint8_t>(left.r * right),
@@ -217,7 +217,7 @@ void bind_color(py::module_ &m) {
    .def("__imul__", [](sf::Color& left, float right) {
         left.r = static_cast<std::uint8_t>(left.r * right);
         left.g = static_cast<std::uint8_t>(left.g * right);
-        left.b = static_cast<std::uint8_t>(left.b * right); 
+        left.b = static_cast<std::uint8_t>(left.b * right);
    });
 }
 
@@ -229,28 +229,28 @@ void bind_font(py::module_ &m) {
     .def_readwrite("family", &sf::Font::Info::family);
 
     font.def(py::init<>())
-    .def(py::init<const void*, std::size_t>())
-    .def(py::init<sf::InputStream&>())
-    .def(py::init<const std::string&>())
-    
-    .def("open_from_file", &sf::Font::openFromFile)
-    .def("open_from_memory", &sf::Font::openFromMemory)
-    .def("open_from_stream", &sf::Font::openFromStream)
-    
+    .def(py::init<const void*, std::size_t>(), py::arg("data"), py::arg("sizeInBytes"))
+    .def(py::init<sf::InputStream&>(), py::arg("stream"))
+    .def(py::init<const std::string&>(), py::arg("filename"))
+
+    .def("open_from_file", &sf::Font::openFromFile, py::arg("filename"))
+    .def("open_from_memory", &sf::Font::openFromMemory, py::arg("data"), py::arg("sizeInBytes"))
+    .def("open_from_stream", &sf::Font::openFromStream, py::arg("stream"))
+
     .def("get_info", &sf::Font::getInfo)
-    
-    .def("get_glyph", &sf::Font::getGlyph)
-    .def("has_glyph", &sf::Font::hasGlyph)
-    
-    .def("get_kerning", &sf::Font::getKerning)
-    .def("get_line_spacing", &sf::Font::getLineSpacing)
-    .def("get_underline_position", &sf::Font::getUnderlinePosition)
-    .def("get_underline_thickness", &sf::Font::getUnderlineThickness)
-    
-    .def("set_smooth", &sf::Font::setSmooth)
+
+    .def("get_glyph", &sf::Font::getGlyph, py::arg("codePoint"), py::arg("characterSize"), py::arg("bold"), py::arg("italic"))
+    .def("has_glyph", &sf::Font::hasGlyph, py::arg("codePoint"))
+
+    .def("get_kerning", &sf::Font::getKerning, py::arg("first"), py::arg("second"), py::arg("characterSize"), py::arg("bold") = false)
+    .def("get_line_spacing", &sf::Font::getLineSpacing, py::arg("characterSize"))
+    .def("get_underline_position", &sf::Font::getUnderlinePosition, py::arg("characterSize"))
+    .def("get_underline_thickness", &sf::Font::getUnderlineThickness, py::arg("characterSize"))
+
+    .def("set_smooth", &sf::Font::setSmooth, py::arg("smooth"))
     .def("is_smooth", &sf::Font::isSmooth)
-    
-    .def("get_texture", &sf::Font::getTexture);
+
+    .def("get_texture", &sf::Font::getTexture, py::arg("characterSize"));
 }
 
 void bind_glyph(py::module_ &m) {
@@ -260,5 +260,5 @@ void bind_glyph(py::module_ &m) {
     .def_readwrite("lsb_delta", &sf::Glyph::lsbDelta)
     .def_readwrite("rsb_delta", &sf::Glyph::rsbDelta)
     .def_readwrite("bounds", &sf::Glyph::bounds)
-    .def_readwrite("texture_rect", &sf::Glyph::textureRect); 
+    .def_readwrite("texture_rect", &sf::Glyph::textureRect);
 }

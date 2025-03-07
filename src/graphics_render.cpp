@@ -36,9 +36,9 @@ void bind_convex_shape(py::module_ &m) {
 void bind_circle_shape(py::module_ &m) {
     py::class_<sf::CircleShape, sf::Shape>(m, "CircleShape")
     .def(py::init<float, std::size_t>(), py::arg("radius") = 0, py::arg("point_count") = 30)
-    .def("set_radius", &sf::CircleShape::setRadius)
+    .def("set_radius", &sf::CircleShape::setRadius, py::arg("radius"))
     .def("get_radius", &sf::CircleShape::getRadius)
-    .def("set_point_count", &sf::CircleShape::setPointCount)
+    .def("set_point_count", &sf::CircleShape::setPointCount, py::arg("count"))
     .def("get_point_count", &sf::CircleShape::getPointCount)
     .def("get_point", &sf::CircleShape::getPoint, py::arg("index"))
     .def("get_geometric_center", &sf::CircleShape::getGeometricCenter);
@@ -79,16 +79,16 @@ void bind_render_states(py::module_ &m) {
 
 void bind_render_target(py::module_ &m) {
     py::class_<sf::RenderTarget>(m, "RenderTarget")
-    .def("clear", static_cast<void(sf::RenderTarget::*)(sf::Color)>(&sf::RenderTarget::clear))
-    .def("clear_stencil", &sf::RenderTarget::clearStencil)
-    .def("clear", static_cast<void(sf::RenderTarget::*)(sf::Color, sf::StencilValue)>(&sf::RenderTarget::clear))
-    .def("set_view", &sf::RenderTarget::setView)
+    .def("clear", static_cast<void(sf::RenderTarget::*)(sf::Color)>(&sf::RenderTarget::clear), py::arg("color") = sf::Color::Black)
+    .def("clear", static_cast<void(sf::RenderTarget::*)(sf::Color, sf::StencilValue)>(&sf::RenderTarget::clear), py::arg("color"), py::arg("stencilValue"))
+    .def("clear_stencil", &sf::RenderTarget::clearStencil, py::arg("stencilValue"))
+    .def("set_view", &sf::RenderTarget::setView, py::arg("view"))
     .def("get_view", &sf::RenderTarget::getView)
     .def("get_default_view", &sf::RenderTarget::getDefaultView)
-    .def("get_viewport", &sf::RenderTarget::getViewport)
-    .def("get_scissor", &sf::RenderTarget::getScissor)
-    .def("map_pixel_to_coords", static_cast<sf::Vector2f(sf::RenderTarget::*)(sf::Vector2i) const>(&sf::RenderTarget::mapPixelToCoords))
-    .def("map_coords_to_pixel", static_cast<sf::Vector2i(sf::RenderTarget::*)(sf::Vector2f) const>(&sf::RenderTarget::mapCoordsToPixel))
+    .def("get_viewport", &sf::RenderTarget::getViewport, py::arg("view"))
+    .def("get_scissor", &sf::RenderTarget::getScissor, py::arg("view"))
+    .def("map_pixel_to_coords", static_cast<sf::Vector2f(sf::RenderTarget::*)(sf::Vector2i) const>(&sf::RenderTarget::mapPixelToCoords), py::arg("point"))
+    .def("map_coords_to_pixel", static_cast<sf::Vector2i(sf::RenderTarget::*)(sf::Vector2f) const>(&sf::RenderTarget::mapCoordsToPixel), py::arg("point"))
     .def("draw", [](sf::RenderTarget& self, const sf::Drawable& drawable, const sf::RenderStates& states) {
         self.draw(drawable, states);
     }, py::arg("drawable"), py::arg("states") = sf::RenderStates::Default)
@@ -103,23 +103,23 @@ void bind_render_target(py::module_ &m) {
     }, py::arg("buffer"), py::arg("first"), py::arg("count"), py::arg("states") = sf::RenderStates::Default)
     .def("get_size", &sf::RenderTarget::getSize)
     .def("is_srgb", &sf::RenderTarget::isSrgb)
-    .def("set_active", &sf::RenderTarget::setActive)
+    .def("set_active", &sf::RenderTarget::setActive, py::arg("active") = true)
     .def("push_gl_states", &sf::RenderTarget::pushGLStates)
     .def("pop_gl_states", &sf::RenderTarget::popGLStates)
-    .def("reset_gl_states", &sf::RenderTarget::resetGLStates); 
+    .def("reset_gl_states", &sf::RenderTarget::resetGLStates);
 }
 
 void bind_render_texture(py::module_ &m) {
     py::class_<sf::RenderTexture, sf::RenderTarget>(m, "RenderTexture")
     .def(py::init<>())
-    .def(py::init<sf::Vector2u, const sf::ContextSettings&>())
+    .def(py::init<sf::Vector2u, const sf::ContextSettings&>(), py::arg("size"), py::arg("settings"))
     .def("resize", &sf::RenderTexture::resize)
-    .def("set_smooth", &sf::RenderTexture::setSmooth)
+    .def("set_smooth", &sf::RenderTexture::setSmooth, py::arg("smooth"))
     .def("is_smooth", &sf::RenderTexture::isSmooth)
-    .def("set_repeated", &sf::RenderTexture::setRepeated)
+    .def("set_repeated", &sf::RenderTexture::setRepeated, py::arg("repeated"))
     .def("is_repeated", &sf::RenderTexture::isRepeated)
     .def("generate_mipmap", &sf::RenderTexture::generateMipmap)
-    .def("set_active", &sf::RenderTexture::setActive)
+    .def("set_active", &sf::RenderTexture::setActive, py::arg("active") = true)
     .def("display", &sf::RenderTexture::display)
     .def("get_size", &sf::RenderTexture::getSize)
     .def("is_srgb", &sf::RenderTexture::isSrgb)
@@ -142,12 +142,12 @@ void bind_render_window(py::module_ &m) {
         self.setIcon(size, pixels);
     }, py::arg("size"), py::arg("pixels"))
     .def("is_srgb", &sf::RenderWindow::isSrgb)
-    .def("set_active", &sf::RenderWindow::setActive);
+    .def("set_active", &sf::RenderWindow::setActive, py::arg("active") = true);
 }
 
 void bind_shader(py::module& m) {
     py::class_<sf::Shader> shader(m, "Shader");
-    
+
     py::enum_<sf::Shader::Type>(shader, "Type")
     .value("Vertex", sf::Shader::Type::Vertex)
     .value("Geometry", sf::Shader::Type::Geometry)
@@ -157,13 +157,13 @@ void bind_shader(py::module& m) {
     shader.def(py::init<>())
     .def(py::init([](const std::string& filename, sf::Shader::Type type) {
         return std::make_unique<sf::Shader>(std::filesystem::path(filename), type);
-    }))
+    }), py::arg("filename"), py::arg("type"))
     .def(py::init([](const std::string& vertexShaderFilename, const std::string& fragmentShaderFilename) {
         return std::make_unique<sf::Shader>(std::filesystem::path(vertexShaderFilename), std::filesystem::path(fragmentShaderFilename));
-    }))
+    }), py::arg("vertexShaderFilename"), py::arg("fragmentShaderFilename"))
     .def(py::init([](const std::string& vertexShaderFilename, const std::string& geometryShaderFilename, const std::string& fragmentShaderFilename) {
         return std::make_unique<sf::Shader>(std::filesystem::path(vertexShaderFilename), std::filesystem::path(geometryShaderFilename), std::filesystem::path(fragmentShaderFilename));
-    }))
+    }), py::arg("vertexShaderFilename"), py::arg("geometryShaderFilename"), py::arg("fragmentShaderFilename"))
     .def("load_from_file", [](sf::Shader& self, const std::string& filename, sf::Shader::Type type) {
         return self.loadFromFile(filename, type);
     }, py::arg("filename"), py::arg("type"))
@@ -184,69 +184,69 @@ void bind_shader(py::module& m) {
     }, py::arg("vertex"), py::arg("geometry"), py::arg("fragment"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, float x) {
         self.setUniform(name, x);
-    })
+    }, py::arg("name"), py::arg("x"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Vec2& vector) {
         self.setUniform(name, vector);
-    })
+    }, py::arg("name"), py::arg("vector"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Vec3& vector) {
         self.setUniform(name, vector);
-    })
+    }, py::arg("name"), py::arg("vector"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Vec4& vector) {
         self.setUniform(name, vector);
-    })
+    }, py::arg("name"), py::arg("vector"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, int x) {
         self.setUniform(name, x);
-    })
+    }, py::arg("name"), py::arg("x"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Ivec2& vector) {
         self.setUniform(name, vector);
-    })
+    }, py::arg("name"), py::arg("vector"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Ivec3& vector) {
         self.setUniform(name, vector);
-    })
+    }, py::arg("name"), py::arg("vector"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Ivec4& vector) {
         self.setUniform(name, vector);
-    })
+    }, py::arg("name"), py::arg("vector"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, bool x) {
         self.setUniform(name, x);
-    })
+    }, py::arg("name"), py::arg("x"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Bvec2& vector) {
         self.setUniform(name, vector);
-    })
+    }, py::arg("name"), py::arg("vector"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Bvec3& vector) {
         self.setUniform(name, vector);
-    })
+    }, py::arg("name"), py::arg("vector"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Bvec4& vector) {
         self.setUniform(name, vector);
-    })
+    }, py::arg("name"), py::arg("vector"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Mat3& matrix) {
         self.setUniform(name, matrix);
-    })
+    }, py::arg("name"), py::arg("matrix"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Glsl::Mat4& matrix) {
         self.setUniform(name, matrix);
-    })
+    }, py::arg("name"), py::arg("matrix"))
     .def("set_uniform", [](sf::Shader& self, const std::string& name, const sf::Texture& texture) {
         self.setUniform(name, texture);
-    })
+    }, py::arg("name"), py::arg("texture"))
     .def("set_uniform_array", [](sf::Shader& self, const std::string& name, const float* values, std::size_t count) {
         self.setUniformArray(name, values, count);
-    })
+    }, py::arg("name"), py::arg("values"), py::arg("count"))
     .def("set_uniform_array", [](sf::Shader& self, const std::string& name, const sf::Glsl::Vec2* values, std::size_t count) {
-        self.setUniformArray(name, values, count); 
-    })
+        self.setUniformArray(name, values, count);
+    }, py::arg("name"), py::arg("values"), py::arg("count"))
     .def("set_uniform_array", [](sf::Shader& self, const std::string& name, const sf::Glsl::Vec3* values, std::size_t count) {
         self.setUniformArray(name, values, count);
-    })
+    }, py::arg("name"), py::arg("values"), py::arg("count"))
     .def("set_uniform_array", [](sf::Shader& self, const std::string& name, const sf::Glsl::Vec4* values, std::size_t count) {
         self.setUniformArray(name, values, count);
-    })
+    }, py::arg("name"), py::arg("values"), py::arg("count"))
     .def("set_uniform_array", [](sf::Shader& self, const std::string& name, const sf::Glsl::Mat3* matrixArray, std::size_t count) {
-        self.setUniformArray(name, matrixArray, count); 
-    })
+        self.setUniformArray(name, matrixArray, count);
+    }, py::arg("name"), py::arg("matrixArray"), py::arg("count"))
     .def("set_uniform_array", [](sf::Shader& self, const std::string& name, const sf::Glsl::Mat4* matrixArray, std::size_t count) {
         self.setUniformArray(name, matrixArray, count);
-    })
+    }, py::arg("name"), py::arg("matrixArray"), py::arg("count"))
     .def("get_native_handle", &sf::Shader::getNativeHandle)
-    .def_static("bind", &sf::Shader::bind)
+    .def_static("bind", &sf::Shader::bind, py::arg("shader"))
     .def_static("is_available", &sf::Shader::isAvailable)
     .def_static("is_geometry_available", &sf::Shader::isGeometryAvailable);
 }
