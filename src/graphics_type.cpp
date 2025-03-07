@@ -62,7 +62,8 @@ void bind_glsl(py::module_ &m) {
 void bind_type(py::module_ &m) {
     py::enum_<sf::CoordinateType>(m, "CoordinateType")
     .value("Local", sf::CoordinateType::Normalized)
-    .value("Pixels", sf::CoordinateType::Pixels);
+    .value("Pixels", sf::CoordinateType::Pixels)
+    .export_values();
 
     py::enum_<sf::PrimitiveType>(m, "PrimitiveType")
     .value("Points", sf::PrimitiveType::Points)
@@ -70,7 +71,8 @@ void bind_type(py::module_ &m) {
     .value("LinesStrip", sf::PrimitiveType::LineStrip)
     .value("Triangles", sf::PrimitiveType::Triangles)
     .value("TrianglesStrip", sf::PrimitiveType::TriangleStrip)
-    .value("TrianglesFan", sf::PrimitiveType::TriangleFan);
+    .value("TrianglesFan", sf::PrimitiveType::TriangleFan)
+    .export_values();
 
     py::class_<sf::Drawable>(m, "Drawable"); // Pure virtual class
 }

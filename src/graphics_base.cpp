@@ -13,14 +13,16 @@ void bind_blend_mode(py::module_ &m) {
     .value("SrcAlpha", sf::BlendMode::Factor::SrcAlpha)
     .value("OneMinusSrcAlpha", sf::BlendMode::Factor::OneMinusSrcAlpha)
     .value("DstAlpha", sf::BlendMode::Factor::DstAlpha)
-    .value("OneMinusDstAlpha", sf::BlendMode::Factor::OneMinusDstAlpha);
+    .value("OneMinusDstAlpha", sf::BlendMode::Factor::OneMinusDstAlpha)
+    .export_values();
 
     py::enum_<sf::BlendMode::Equation>(blend_mode, "Equation")
     .value("Add", sf::BlendMode::Equation::Add)
     .value("Subtract", sf::BlendMode::Equation::Subtract)
     .value("ReverseSubtract", sf::BlendMode::Equation::ReverseSubtract)
     .value("Min", sf::BlendMode::Equation::Min)
-    .value("Max", sf::BlendMode::Equation::Max);
+    .value("Max", sf::BlendMode::Equation::Max)
+    .export_values();
 
     blend_mode.def(py::init<>())
     .def(py::init<sf::BlendMode::Factor, sf::BlendMode::Factor, sf::BlendMode::Equation>(),
@@ -107,7 +109,20 @@ void bind_vertex(py::module& m) {
 
     py::class_<sf::VertexArray, sf::Drawable>(m, "VertexArray")
     .def(py::init<>())
-    .def(py::init<sf::PrimitiveType, std::size_t>())
+    .def(py::init<sf::PrimitiveType, std::size_t>(), py::arg("type"), py::arg("vertexCount") = 0)
+    .def("__getitem__", [](sf::VertexArray &self, std::size_t index) -> sf::Vertex & {
+        if (index >= self.getVertexCount()) {
+            throw py::index_error("Index out of range");
+        }
+        return self[index];
+    }, py::return_value_policy::reference)
+    .def("__setitem__", [](sf::VertexArray &self, std::size_t index, const sf::Vertex &vertex) {
+        if (index >= self.getVertexCount()) {
+            throw py::index_error("Index out of range");
+        }
+        self[index] = vertex;
+    })
+    .def("__len__", &sf::VertexArray::getVertexCount)
     .def("get_vertex_count", &sf::VertexArray::getVertexCount)
     .def("clear", &sf::VertexArray::clear)
     .def("resize", &sf::VertexArray::resize, py::arg("vertexCount"))
@@ -121,7 +136,8 @@ void bind_vertex(py::module& m) {
     py::enum_<sf::VertexBuffer::Usage>(vertex_buffer, "Usage")
     .value("Stream", sf::VertexBuffer::Usage::Stream)
     .value("Dynamic", sf::VertexBuffer::Usage::Dynamic)
-    .value("Static", sf::VertexBuffer::Usage::Static);
+    .value("Static", sf::VertexBuffer::Usage::Static)
+    .export_values();
 
     vertex_buffer.def(py::init<>())
     .def(py::init<sf::PrimitiveType>())
@@ -233,14 +249,20 @@ void bind_font(py::module_ &m) {
     .def(py::init<sf::InputStream&>(), py::arg("stream"))
     .def(py::init<const std::string&>(), py::arg("filename"))
 
-    .def("open_from_file", &sf::Font::openFromFile, py::arg("filename"))
+    .def("open_from_file", [](sf::Font &self, const std::string &filename) {
+        return self.openFromFile(filename);
+    }, py::arg("filename"))
     .def("open_from_memory", &sf::Font::openFromMemory, py::arg("data"), py::arg("sizeInBytes"))
     .def("open_from_stream", &sf::Font::openFromStream, py::arg("stream"))
 
     .def("get_info", &sf::Font::getInfo)
 
-    .def("get_glyph", &sf::Font::getGlyph, py::arg("codePoint"), py::arg("characterSize"), py::arg("bold"), py::arg("italic"))
-    .def("has_glyph", &sf::Font::hasGlyph, py::arg("codePoint"))
+    .def("get_glyph", [](sf::Font &self, unsigned int codePoint, unsigned int characterSize, bool bold, float outlineThickness) {
+        return self.getGlyph(codePoint, characterSize, bold, outlineThickness);
+    }, py::arg("codePoint"), py::arg("characterSize"), py::arg("bold"), py::arg("outlineThickness") = 0.0f)
+    .def("has_glyph", [](sf::Font &self, unsigned int codePoint) {
+        return self.hasGlyph(codePoint);
+    }, py::arg("codePoint"))
 
     .def("get_kerning", &sf::Font::getKerning, py::arg("first"), py::arg("second"), py::arg("characterSize"), py::arg("bold") = false)
     .def("get_line_spacing", &sf::Font::getLineSpacing, py::arg("characterSize"))

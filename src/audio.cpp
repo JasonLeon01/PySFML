@@ -21,7 +21,8 @@ void bind_sound_channel(py::module& m) {
     .value("TopFrontCenter", sf::SoundChannel::TopFrontCenter)
     .value("TopBackLeft", sf::SoundChannel::TopBackLeft)
     .value("TopBackRight", sf::SoundChannel::TopBackRight)
-    .value("TopBackCenter", sf::SoundChannel::TopBackCenter);
+    .value("TopBackCenter", sf::SoundChannel::TopBackCenter)
+    .export_values();
 }
 
 void bind_listener(py::module& m) {
@@ -139,7 +140,9 @@ void bind_sound_buffer(py::module& m) {
     .def(py::init<const void*, std::size_t>(), py::arg("data"), py::arg("sizeInBytes"))
     .def(py::init<sf::InputStream&>(), py::arg("stream"))
     .def(py::init<const std::int16_t*, std::uint64_t, unsigned int, unsigned int, const std::vector<sf::SoundChannel>&>(), py::arg("samples"), py::arg("sampleCount"), py::arg("channelCount"), py::arg("sampleRate"), py::arg("channelMap"))
-    .def("load_from_file", &sf::SoundBuffer::loadFromFile, py::arg("filename"))
+    .def("load_from_file", [](sf::SoundBuffer& self, const std::string& filename) {
+        return self.loadFromFile(filename);
+    }, py::arg("filename"))
     .def("load_from_memory", &sf::SoundBuffer::loadFromMemory, py::arg("data"), py::arg("sizeInBytes"))
     .def("load_from_stream", &sf::SoundBuffer::loadFromStream, py::arg("stream"))
     .def("load_from_samples", &sf::SoundBuffer::loadFromSamples, py::arg("samples"), py::arg("sampleCount"), py::arg("channelCount"), py::arg("sampleRate"), py::arg("channelMap"))

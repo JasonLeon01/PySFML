@@ -101,12 +101,13 @@ void bind_stencil_mode(py::module& m) {
 
 void bind_text(py::module& m) {
     py::class_<sf::Text, sf::Transformable, sf::Drawable> text(m, "Text");
-    py::enum_<sf::Text::Style>(text, "Style")
+    py::enum_<sf::Text::Style>(text, "Style", py::arithmetic())
     .value("Regular", sf::Text::Regular)
     .value("Bold", sf::Text::Bold)
     .value("Italic", sf::Text::Italic)
     .value("Underlined", sf::Text::Underlined)
-    .value("StrikeThrough", sf::Text::StrikeThrough);
+    .value("StrikeThrough", sf::Text::StrikeThrough)
+    .export_values();
 
     text.def(py::init<const sf::Font&, std::string, unsigned int>(),
          py::arg("font"), py::arg("string") = "", py::arg("character_size") = 30)
@@ -124,7 +125,8 @@ void bind_text(py::module& m) {
     .def("set_outline_color", &sf::Text::setOutlineColor, py::arg("color"))
     .def("set_outline_thickness", &sf::Text::setOutlineThickness, py::arg("thickness"))
     .def("get_string", [](sf::Text& self) {
-        return self.getString().toUtf8();
+        auto utf8Bytes = self.getString().toUtf8();
+        return std::string(utf8Bytes.begin(), utf8Bytes.end());
     })
     .def("get_font", &sf::Text::getFont)
     .def("get_character_size", &sf::Text::getCharacterSize)

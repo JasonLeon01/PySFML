@@ -33,6 +33,31 @@ void bind_time(py::module &m) {
     .def("as_milliseconds", &sf::Time::asMilliseconds)
     .def("as_microseconds", &sf::Time::asMicroseconds)
     .def("to_duration", &sf::Time::toDuration)
+    .def("__eq__", [](const sf::Time &a, const sf::Time &b) { return a == b; })
+    .def("__ne__", [](const sf::Time &a, const sf::Time &b) { return a != b; })
+    .def("__lt__", [](const sf::Time &a, const sf::Time &b) { return a < b; })
+    .def("__le__", [](const sf::Time &a, const sf::Time &b) { return a <= b; })
+    .def("__gt__", [](const sf::Time &a, const sf::Time &b) { return a > b; })
+    .def("__ge__", [](const sf::Time &a, const sf::Time &b) { return a >= b; })
+    .def("__add__", [](const sf::Time &a, const sf::Time &b) { return a + b; })
+    .def("__sub__", [](const sf::Time &a, const sf::Time &b) { return a - b; })
+    .def("__mul__", [](const sf::Time &a, float b) { return a * b; })
+    .def("__truediv__", [](const sf::Time &a, float b) { return a / b; })
+    .def("__iadd__", [](sf::Time &a, const sf::Time &b) { return a += b; })
+    .def("__isub__", [](sf::Time &a, const sf::Time &b) { return a -= b; })
+    .def("__imul__", [](sf::Time &a, float b) { return a *= b; })
+    .def("__itruediv__", [](sf::Time &a, float b) { return a /= b; })
+    .def("__neg__", [](const sf::Time &a) { return -a; })
+    .def("__float__", &sf::Time::asSeconds)
+    .def_static("Zero", []() { return sf::Time::Zero; })
+    .def_static("FromSeconds", [](float seconds) {
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::duration<float>(seconds)
+        );
+        return sf::Time(duration);
+    }, py::arg("seconds"))
+    .def_static("FromMilliseconds", [](int64_t milliseconds) { return sf::Time(std::chrono::milliseconds(milliseconds)); }, py::arg("milliseconds"))
+    .def_static("FromMicroseconds", [](int64_t microseconds) { return sf::Time(std::chrono::microseconds(microseconds)); }, py::arg("microseconds"))
     .def("__repr__", [](const sf::Time &t) {
         return "<sf.Time: " + std::to_string(t.asSeconds()) + " seconds>";
     });

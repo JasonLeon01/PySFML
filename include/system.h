@@ -37,9 +37,27 @@ void bind_vector2(py::module &m, const std::string &name) {
     .def("__mul__", [](sf::Vector2<T> left, T right) {
         left.x *= right;
         left.y *= right;
-        return left; 
+        return left;
     })
     .def("__truediv__", [](sf::Vector2<T> left, T right) {
+        left.x /= right;
+        left.y /= right;
+        return left;
+    })
+    .def("__iadd__", [](sf::Vector2<T> &left, sf::Vector2<T> right) -> sf::Vector2<T>& {
+        left += right;
+        return left;
+    })
+    .def("__isub__", [](sf::Vector2<T> &left, sf::Vector2<T> right) -> sf::Vector2<T>& {
+        left -= right;
+        return left;
+    })
+    .def("__imul__", [](sf::Vector2<T> &left, T right) -> sf::Vector2<T>& {
+        left.x *= right;
+        left.y *= right;
+        return left;
+    })
+    .def("__itruediv__", [](sf::Vector2<T> &left, T right) -> sf::Vector2<T>& {
         left.x /= right;
         left.y /= right;
         return left;
@@ -51,10 +69,16 @@ void bind_vector2(py::module &m, const std::string &name) {
         return left.x != right.x || left.y != right.y;
     })
     .def("__repr__", [](const sf::Vector2<T> &v) {
-        return "<sf.Vector2: (" + std::to_string(v.x) + ", " + std::to_string(v.y) + ")>"; 
+        return "<sf.Vector2: (" + std::to_string(v.x) + ", " + std::to_string(v.y) + ")>";
     })
-    .def_readwrite("x", &sf::Vector2<T>::x)
-    .def_readwrite("y", &sf::Vector2<T>::y);
+    .def_property("x",
+        [](const sf::Vector2<T> &v) { return v.x; },
+        [](sf::Vector2<T> &v, T value) { v.x = value; }
+        , py::return_value_policy::reference)
+    .def_property("y",
+        [](const sf::Vector2<T> &v) { return v.y; },
+        [](sf::Vector2<T> &v, T value) { v.y = value; }
+        , py::return_value_policy::reference);
 }
 
 template <typename T>
@@ -86,6 +110,26 @@ void bind_vector3(py::module &m, const std::string &name) {
         left.z /= right;
         return left;
     })
+    .def("__iadd__", [](sf::Vector3<T> &left, sf::Vector3<T> right) -> sf::Vector3<T>& {
+        left += right;
+        return left;
+    })
+    .def("__isub__", [](sf::Vector3<T> &left, sf::Vector3<T> right) -> sf::Vector3<T>& {
+        left -= right;
+        return left;
+    })
+    .def("__imul__", [](sf::Vector3<T> &left, T right) -> sf::Vector3<T>& {
+        left.x *= right;
+        left.y *= right;
+        left.z *= right;
+        return left;
+    })
+    .def("__itruediv__", [](sf::Vector3<T> &left, T right) -> sf::Vector3<T>& {
+        left.x /= right;
+        left.y /= right;
+        left.z /= right;
+        return left;
+    })
     .def("__eq__", [](sf::Vector3<T> left, sf::Vector3<T> right) {
         return left.x == right.x && left.y == right.y && left.z == right.z;
     })
@@ -95,9 +139,18 @@ void bind_vector3(py::module &m, const std::string &name) {
     .def("__repr__", [](const sf::Vector3<T> &v) {
         return "<sf.Vector3: (" + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ")>";
     })
-    .def_readwrite("x", &sf::Vector3<T>::x)
-    .def_readwrite("y", &sf::Vector3<T>::y)
-    .def_readwrite("z", &sf::Vector3<T>::z);
+    .def_property("x",
+        [](const sf::Vector3<T> &v) { return v.x; },
+        [](sf::Vector3<T> &v, T value) { v.x = value; }
+        , py::return_value_policy::reference)
+    .def_property("y",
+        [](const sf::Vector3<T> &v) { return v.y; },
+        [](sf::Vector3<T> &v, T value) { v.y = value; }
+        , py::return_value_policy::reference)
+    .def_property("z",
+        [](const sf::Vector3<T> &v) { return v.z; },
+        [](sf::Vector3<T> &v, T value) { v.z = value; }
+        , py::return_value_policy::reference);
 }
 
 void bind_input_stream(py::module_& m);

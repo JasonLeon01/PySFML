@@ -9,6 +9,9 @@ void bind_ip_address(py::module &m) {
     .def("to_integer", &sf::IpAddress::toInteger)
     .def_static("get_local_address", &sf::IpAddress::getLocalAddress)
     .def_static("get_public_address", &sf::IpAddress::getPublicAddress, py::arg("timeout") = sf::Time::Zero)
+    .def_static("Any", []() { return sf::IpAddress::Any; })
+    .def_static("LocalHost", []() { return sf::IpAddress::LocalHost; })
+    .def_static("Broadcast", []() { return sf::IpAddress::Broadcast; })
     .def("__lt__", [](const sf::IpAddress& left, const sf::IpAddress& right) { return left < right; })
     .def("__le__", [](const sf::IpAddress& left, const sf::IpAddress& right) { return left <= right; })
     .def("__eq__", [](const sf::IpAddress& left, const sf::IpAddress& right) { return left == right; })
@@ -24,7 +27,8 @@ void bind_ftp(py::module &m) {
     py::enum_<sf::Ftp::TransferMode>(ftp, "TransferMode")
     .value("Binary", sf::Ftp::TransferMode::Binary)
     .value("Ascii", sf::Ftp::TransferMode::Ascii)
-    .value("Ebcdic", sf::Ftp::TransferMode::Ebcdic);
+    .value("Ebcdic", sf::Ftp::TransferMode::Ebcdic)
+    .export_values();
 
     py::class_<sf::Ftp::Response> response(ftp, "Response");
 
@@ -40,7 +44,8 @@ void bind_ftp(py::module &m) {
     .value("FileStatus", sf::Ftp::Response::Status::FileStatus)
     .value("InvalidResponse", sf::Ftp::Response::Status::InvalidResponse)
     .value("ConnectionFailed", sf::Ftp::Response::Status::ConnectionFailed)
-    .value("ConnectionClosed", sf::Ftp::Response::Status::ConnectionClosed);
+    .value("ConnectionClosed", sf::Ftp::Response::Status::ConnectionClosed)
+    .export_values();
 
     response.def(py::init<>())
     .def(py::init<sf::Ftp::Response::Status, std::string>(), py::arg("status") = sf::Ftp::Response::Status::InvalidResponse, py::arg("message") = "")
@@ -64,7 +69,27 @@ void bind_ftp(py::module &m) {
     })
     .def("login", [](sf::Ftp& self, const std::string& username, const std::string& password) {
        return self.login(username, password);
-    }, py::arg("username"), py::arg("password"));
+    }, py::arg("username"), py::arg("password"))
+    .def("keep_alive", &sf::Ftp::keepAlive)
+    .def("get_working_directory", &sf::Ftp::getWorkingDirectory)
+    .def("get_directory_listing", &sf::Ftp::getDirectoryListing, py::arg("directory") = "")
+    .def("change_directory", &sf::Ftp::changeDirectory, py::arg("name"))
+    .def("parent_directory", &sf::Ftp::parentDirectory)
+    .def("create_directory", &sf::Ftp::createDirectory, py::arg("name"))
+    .def("delete_directory", &sf::Ftp::deleteDirectory, py::arg("name"))
+    .def("rename_file", [](sf::Ftp& self, const std::string& file, const std::string& newName) {
+       return self.renameFile(file, newName);
+    }, py::arg("file"), py::arg("newName"))
+    .def("delete_file", [](sf::Ftp& self, const std::string& file) {
+       return self.deleteFile(file);
+    })
+    .def("download", [](sf::Ftp& self, const std::string& remoteFile, const std::string& localPath, sf::Ftp::TransferMode mode) {
+       return self.download(remoteFile, localPath, mode);
+    }, py::arg("remoteFile"), py::arg("localPath"), py::arg("mode") = sf::Ftp::TransferMode::Binary)
+    .def("upload", [](sf::Ftp& self, const std::string& localFile, const std::string& remotePath, sf::Ftp::TransferMode mode, bool append) {
+       return self.upload(localFile, remotePath, mode, append);
+    }, py::arg("localFile"), py::arg("remotePath"), py::arg("mode") = sf::Ftp::TransferMode::Binary, py::arg("append") = false)
+    .def("send_command", &sf::Ftp::sendCommand, py::arg("command"), py::arg("parameter") = "");
 }
 
 void bind_http(py::module &m) {
@@ -77,7 +102,8 @@ void bind_http(py::module &m) {
     .value("POST", sf::Http::Request::Method::Post)
     .value("HEAD", sf::Http::Request::Method::Head)
     .value("PUT", sf::Http::Request::Method::Put)
-    .value("DELETE", sf::Http::Request::Method::Delete);
+    .value("DELETE", sf::Http::Request::Method::Delete)
+    .export_values();
 
     request.def(py::init<>())
     .def(py::init<const std::string&, sf::Http::Request::Method, const std::string&>(), py::arg("uri") = "/", py::arg("method") = sf::Http::Request::Method::Get, py::arg("body") = "")
@@ -97,7 +123,8 @@ void bind_http(py::module &m) {
     .value("BAD_REQUEST", sf::Http::Response::Status::BadRequest)
     .value("FORBIDDEN", sf::Http::Response::Status::Forbidden)
     .value("NOT_FOUND", sf::Http::Response::Status::NotFound)
-    .value("INTERNAL_SERVER_ERROR", sf::Http::Response::Status::InternalServerError);
+    .value("INTERNAL_SERVER_ERROR", sf::Http::Response::Status::InternalServerError)
+    .export_values();
 
     response.def(py::init<>())
     .def("get_field", &sf::Http::Response::getField, py::arg("field"))
@@ -162,7 +189,8 @@ void bind_socket(py::module_ &m) {
     .value("NotReady", sf::Socket::Status::NotReady)
     .value("Partial", sf::Socket::Status::Partial)
     .value("Disconnected", sf::Socket::Status::Disconnected)
-    .value("Error", sf::Socket::Status::Error);
+    .value("Error", sf::Socket::Status::Error)
+    .export_values();
 
     socket.def("set_blocking", &sf::Socket::setBlocking)
     .def("is_blocking", &sf::Socket::isBlocking);

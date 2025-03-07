@@ -64,7 +64,8 @@ void bind_cursor(py::module_ &m) {
     .value("SizeAll", sf::Cursor::Type::SizeAll)
     .value("Cross", sf::Cursor::Type::Cross)
     .value("Help", sf::Cursor::Type::Help)
-    .value("NotAllowed", sf::Cursor::Type::NotAllowed);
+    .value("NotAllowed", sf::Cursor::Type::NotAllowed)
+    .export_values();
 
     cursor.def(py::init<sf::Cursor::Type>(), py::arg("type"))
     .def(py::init<const std::uint8_t*, sf::Vector2u, sf::Vector2u>(), py::arg("pixels"), py::arg("size"), py::arg("hotSpot"))
