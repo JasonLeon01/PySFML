@@ -21,11 +21,28 @@ template <typename T>
 void bind_vector2(py::module &m, const std::string &name) {
     py::class_<sf::Vector2<T>>(m, name.c_str())
     .def(py::init<>())
-    .def(py::init<T, T>())
+    .def(py::init([](int x, int y) {
+        return sf::Vector2<T>(x, y);
+    }), py::arg("x"), py::arg("y"))
+    .def(py::init([](float x, float y) {
+        return sf::Vector2<T>(x, y);
+    }), py::arg("x"), py::arg("y"))
+    .def(py::init([](unsigned int x, unsigned int y) {
+        return sf::Vector2<T>(x, y);
+    }), py::arg("x"), py::arg("y"))
     .def(py::init([](py::tuple vec2) {
         auto [x1, x2] = vec2.cast<std::tuple<T, T>>();
         return sf::Vector2<T>(x1, x2);
     }), py::arg("tuple"))
+    .def("to_int", [](sf::Vector2<T> vec2) {
+        return sf::Vector2<int>(vec2.x, vec2.y);
+    })
+    .def("to_float", [](sf::Vector2<T> vec2) {
+        return sf::Vector2<float>(vec2.x, vec2.y);
+    })
+    .def("to_uint", [](sf::Vector2<T> vec2) {
+        return sf::Vector2<unsigned int>(vec2.x, vec2.y);
+    })
     .def("__add__", [](sf::Vector2<T> left, sf::Vector2<T> right) {
         left += right;
         return left;
@@ -85,11 +102,28 @@ template <typename T>
 void bind_vector3(py::module &m, const std::string &name) {
     py::class_<sf::Vector3<T>>(m, name.c_str())
    .def(py::init<>())
-   .def(py::init<T, T, T>())
-   .def(py::init([](py::tuple vec3) {
+   .def(py::init([](int x, int y, int z) {
+        return sf::Vector3<T>(x, y, z);
+    }), py::arg("x"), py::arg("y"), py::arg("z"))
+    .def(py::init([](float x, float y, float z) {
+        return sf::Vector3<T>(x, y, z);
+    }), py::arg("x"), py::arg("y"), py::arg("z"))
+    .def(py::init([](unsigned int x, unsigned int y, unsigned int z) {
+        return sf::Vector3<T>(x, y, z);
+    }), py::arg("x"), py::arg("y"), py::arg("z"))
+    .def(py::init([](py::tuple vec3) {
         auto [x1, x2, x3] = vec3.cast<std::tuple<T, T, T>>();
         return sf::Vector3<T>(x1, x2, x3);
     }), py::arg("tuple"))
+    .def("to_int", [](sf::Vector3<T> vec3) {
+        return sf::Vector3<int>(vec3.x, vec3.y, vec3.z);
+    })
+    .def("to_float", [](sf::Vector3<T> vec3) {
+        return sf::Vector3<float>(vec3.x, vec3.y, vec3.z);
+    })
+    .def("to_uint", [](sf::Vector3<T> vec3) {
+        return sf::Vector3<unsigned int>(vec3.x, vec3.y, vec3.z);
+    })
     .def("__add__", [](sf::Vector3<T> left, sf::Vector3<T> right) {
         left += right;
         return left;

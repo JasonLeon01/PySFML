@@ -115,7 +115,7 @@ void bind_render_texture(py::module_ &m) {
     py::class_<sf::RenderTexture, sf::RenderTarget>(m, "RenderTexture")
     .def(py::init<>())
     .def(py::init<sf::Vector2u, const sf::ContextSettings&>(), py::arg("size"), py::arg("settings") = sf::ContextSettings())
-    .def("resize", &sf::RenderTexture::resize)
+    .def("resize", &sf::RenderTexture::resize, py::arg("size"), py::arg("settings") = sf::ContextSettings())
     .def("set_smooth", &sf::RenderTexture::setSmooth, py::arg("smooth"))
     .def("is_smooth", &sf::RenderTexture::isSmooth)
     .def("set_repeated", &sf::RenderTexture::setRepeated, py::arg("repeated"))
