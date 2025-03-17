@@ -247,7 +247,9 @@ void bind_font(py::module_ &m) {
     font.def(py::init<>())
     .def(py::init<const void*, std::size_t>(), py::arg("data"), py::arg("sizeInBytes"))
     .def(py::init<sf::InputStream&>(), py::arg("stream"))
-    .def(py::init<const std::string&>(), py::arg("filename"))
+    .def(py::init<>([](const std::string &filename) {
+        return sf::Font(filename);
+    }), py::arg("filename"))
 
     .def("open_from_file", [](sf::Font &self, const std::string &filename) {
         return self.openFromFile(filename);

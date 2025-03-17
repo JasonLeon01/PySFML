@@ -1,5 +1,6 @@
 #include <system.h>
 #include <window_base.h>
+#include <window_event.h>
 #include <window.h>
 #include <graphics_type.h>
 #include <graphics_base.h>
@@ -24,8 +25,9 @@ PYBIND11_MODULE(pysf, m) {
     bind_enum(m);
     bind_context(m);
     bind_cursor(m);
-    bind_event(m);
     bind_video_mode(m);
+
+    bind_event(m);
 
     bind_base_window(m);
     bind_window(m);
