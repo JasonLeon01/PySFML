@@ -5,6 +5,9 @@ void bind_image(py::module_ &m) {
     .def(py::init<>())
     .def(py::init<sf::Vector2u, sf::Color>(), py::arg("size"), py::arg("color") = sf::Color::Black)
     .def(py::init<sf::Vector2u, const uint8_t*>(), py::arg("size"), py::arg("pixels"))
+    .def(py::init<>([](const std::string &filename) {
+        return sf::Image(filename);
+    }), py::arg("filename"))
     .def(py::init<const void*, std::size_t>(), py::arg("data"), py::arg("size"))
     .def(py::init<sf::InputStream&>(), py::arg("stream"))
     .def("resize", (void (sf::Image::*)(sf::Vector2u, sf::Color)) &sf::Image::resize, py::arg("size"), py::arg("color") = sf::Color::Black)
@@ -14,7 +17,9 @@ void bind_image(py::module_ &m) {
     }, py::arg("filename"))
     .def("load_from_memory", &sf::Image::loadFromMemory, py::arg("data"), py::arg("size"))
     .def("load_from_stream", &sf::Image::loadFromStream, py::arg("stream"))
-    .def("save_to_file", &sf::Image::saveToFile, py::arg("filename"))
+    .def("save_to_file", [](sf::Image &self, const std::string &filename) {
+        return self.saveToFile(filename);
+    }, py::arg("filename"))
     .def("save_to_memory", &sf::Image::saveToMemory, py::arg("format"))
     .def("get_size", &sf::Image::getSize)
     .def("create_mask_from_color", &sf::Image::createMaskFromColor, py::arg("color"), py::arg("alpha") = 0)

@@ -14,7 +14,4 @@ namespace py = pybind11;
 #  define SFML_API
 #endif
 
-void bind_enum(py::module_ &m);
-void bind_context(py::module_& m);
-void bind_cursor(py::module_& m);
-void bind_video_mode(py::module_& m);
+void bind_event(py::module_& m);
