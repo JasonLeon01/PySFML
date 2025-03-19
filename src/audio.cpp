@@ -222,15 +222,15 @@ void bind_sound(py::module& m) {
     .def("play", &sf::Sound::play)
     .def("pause", &sf::Sound::pause)
     .def("stop", &sf::Sound::stop)
-    .def("setBuffer", [](sf::Sound& self, const sf::SoundBuffer& buffer) {
+    .def("set_buffer", [](sf::Sound& self, const sf::SoundBuffer& buffer) {
         self.setBuffer(buffer);
     }, py::arg("buffer"))
-    .def("setLooping", &sf::Sound::setLooping, py::arg("looping"))
-    .def("setPlayingOffset", &sf::Sound::setPlayingOffset, py::arg("timeOffset"))
-    .def("getBuffer", &sf::Sound::getBuffer)
-    .def("isLooping", &sf::Sound::isLooping)
-    .def("getPlayingOffset", &sf::Sound::getPlayingOffset)
-    .def("getStatus", &sf::Sound::getStatus)
+    .def("set_looping", &sf::Sound::setLooping, py::arg("looping"))
+    .def("set_laying_offset", &sf::Sound::setPlayingOffset, py::arg("timeOffset"))
+    .def("get_buffer", &sf::Sound::getBuffer)
+    .def("is_looping", &sf::Sound::isLooping)
+    .def("get_playing_offset", &sf::Sound::getPlayingOffset)
+    .def("get_status", &sf::Sound::getStatus)
     .def("__copy__", [](const sf::Sound &self) {
         return sf::Sound(self);
     })
