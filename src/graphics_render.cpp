@@ -8,14 +8,21 @@ void bind_image(py::module_ &m) {
     .def(py::init<>([](const std::string &filename) {
         return sf::Image(filename);
     }), py::arg("filename"))
-    .def(py::init<const void*, std::size_t>(), py::arg("data"), py::arg("size"))
     .def(py::init<sf::InputStream&>(), py::arg("stream"))
     .def("resize", (void (sf::Image::*)(sf::Vector2u, sf::Color)) &sf::Image::resize, py::arg("size"), py::arg("color") = sf::Color::Black)
     .def("resize", (void (sf::Image::*)(sf::Vector2u, const uint8_t*)) &sf::Image::resize, py::arg("size"), py::arg("pixels"))
     .def("load_from_file", [](sf::Image &self, const std::string &filename) {
         return self.loadFromFile(filename);
     }, py::arg("filename"))
-    .def("load_from_memory", &sf::Image::loadFromMemory, py::arg("data"), py::arg("size"))
+    .def("load_from_memory", [](sf::Image& self, py::bytes data) {
+        const char* buffer;
+        Py_ssize_t size;
+        if (PyBytes_AsStringAndSize(data.ptr(), const_cast<char**>(&buffer), &size) == -1) {
+            throw std::runtime_error("Failed to extract bytes from Python object");
+        }
+        bool result = self.loadFromMemory(static_cast<const void*>(buffer), static_cast<std::size_t>(size));
+        return result;
+    }, py::arg("data"))
     .def("load_from_stream", &sf::Image::loadFromStream, py::arg("stream"))
     .def("save_to_file", [](sf::Image &self, const std::string &filename) {
         return self.saveToFile(filename);

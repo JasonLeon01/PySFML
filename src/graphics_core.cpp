@@ -7,8 +7,6 @@ void bind_texture(py::module& m) {
         sf::Texture texture(filename, s_rgb, area);
         return texture;
     }), py::arg("filename"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
-    .def(py::init<const void*, std::size_t, bool>(), py::arg("data"), py::arg("size"), py::arg("s_rgb") = false)
-    .def(py::init<const void*, std::size_t, bool, const sf::IntRect&>(), py::arg("data"), py::arg("size"), py::arg("s_rgb") = false, py::arg("area"))
     .def(py::init<sf::InputStream&, bool>(), py::arg("stream"), py::arg("s_rgb") = false)
     .def(py::init<sf::InputStream&, bool, const sf::IntRect&>(), py::arg("stream"), py::arg("s_rgb") = false, py::arg("area"))
     .def(py::init<const sf::Image&, bool>(), py::arg("image"), py::arg("s_rgb") = false)
@@ -18,7 +16,15 @@ void bind_texture(py::module& m) {
     .def("load_from_file", [](sf::Texture& self, const std::string& filename, bool s_rgb, const sf::IntRect& area) {
        return self.loadFromFile(filename, s_rgb, area);
     }, py::arg("filename"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
-    .def("load_from_memory", &sf::Texture::loadFromMemory, py::arg("data"), py::arg("size"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
+    .def("load_from_memory", [](sf::Texture& self, py::bytes data, bool s_rgb, const sf::IntRect& area) {
+        const char* buffer;
+        Py_ssize_t size;
+        if (PyBytes_AsStringAndSize(data.ptr(), const_cast<char**>(&buffer), &size) == -1) {
+            throw std::runtime_error("Failed to extract bytes from Python object");
+        }
+        bool result = self.loadFromMemory(static_cast<const void*>(buffer), static_cast<std::size_t>(size), s_rgb, area);
+        return result;
+    }, py::arg("data"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
     .def("load_from_stream", &sf::Texture::loadFromStream, py::arg("stream"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
     .def("load_from_image", &sf::Texture::loadFromImage, py::arg("image"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
     .def("get_size", &sf::Texture::getSize)
