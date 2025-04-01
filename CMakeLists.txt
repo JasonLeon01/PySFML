@@ -60,10 +60,6 @@ add_library(pysf SHARED
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TARGET_SUFFIX ".pyd")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(TARGET_SUFFIX ".so")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(TARGET_SUFFIX ".so")
 else()
     message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
 endif()
@@ -74,29 +70,16 @@ set_target_properties(pysf PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_link_libraries(pysf
-        sfml-system
-        sfml-window
-        sfml-graphics
-        sfml-audio
-        sfml-network
-        "${PYTHON_DIR}/libpython39.a"
-        pybind11::module
-        -Wl,-rpath=${PYTHON_DIR}/libs
-    )
-else()
-    target_link_libraries(pysf
-        sfml-system
-        sfml-window
-        sfml-graphics
-        sfml-audio
-        sfml-network
-        pybind11::module
-        -Wl,-rpath=${PYTHON_DIR}/libs
-    )
-endif()
-
+target_link_libraries(pysf
+    sfml-system
+    sfml-window
+    sfml-graphics
+    sfml-audio
+    sfml-network
+    "${PYTHON_DIR}/libpython39.a"
+    pybind11::module
+    -Wl,-rpath=${PYTHON_DIR}/libs
+)
 
 add_custom_command(TARGET pysf POST_BUILD
     COMMAND ${CMAKE_STRIP} --strip-all $<TARGET_FILE:pysf>
