@@ -7,31 +7,18 @@ project ("pysf")
 set(SFML_DIR ${CMAKE_SOURCE_DIR}/SFML-3.0.0)
 set(PYBIND11_DIR ${CMAKE_SOURCE_DIR}/pybind11)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(PYTHON_DIR "path/to/python39")
-    set(PYTHON_EXECUTABLE "${PYTHON_DIR}/python.exe")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(PYTHON_DIR "/usr")
-    set(PYTHON_EXECUTABLE "/usr/bin/python3.9")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(PYTHON_DIR "/usr/local")
-    set(PYTHON_EXECUTABLE "/usr/bin/python3.9")
-else()
-    message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
+find_package(Python3 3.9.0 EXACT REQUIRED COMPONENTS Interpreter Development)
+if(NOT Python3_FOUND)
+    message(FATAL_ERROR "Python 3.9.0 not found")
 endif()
 
-execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} --version
-    OUTPUT_VARIABLE PYTHON_VERSION_OUTPUT
-    ERROR_VARIABLE PYTHON_VERSION_OUTPUT
-    RESULT_VARIABLE PYTHON_VERSION_RESULT
-)
+get_filename_component(PYTHON_DIR "${Python3_EXECUTABLE}" DIRECTORY)
+set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
 
-if(NOT PYTHON_VERSION_RESULT EQUAL 0 OR NOT PYTHON_VERSION_OUTPUT MATCHES "Python 3.9.0")
-    message(FATAL_ERROR "Python version must be 3.9.0. Found: ${PYTHON_VERSION_OUTPUT}")
-endif()
-
-message(STATUS "Using Python: ${PYTHON_EXECUTABLE}, Version: ${PYTHON_VERSION_OUTPUT}")
+message(STATUS "Python Dir: ${PYTHON_DIR}")
+message(STATUS "Using Python: ${PYTHON_EXECUTABLE}")
+message(STATUS "Python include dirs: ${Python3_INCLUDE_DIRS}")
+message(STATUS "Python libraries: ${Python3_LIBRARIES}")
 
 include_directories(${SFML_DIR}/include)
 link_directories(${SFML_DIR}/lib)

@@ -16,14 +16,12 @@ void bind_texture(py::module& m) {
     .def("load_from_file", [](sf::Texture& self, const std::string& filename, bool s_rgb, const sf::IntRect& area) {
        return self.loadFromFile(filename, s_rgb, area);
     }, py::arg("filename"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
-    .def("load_from_memory", [](sf::Texture& self, py::bytes data, bool s_rgb, const sf::IntRect& area) {
-        const char* buffer;
-        Py_ssize_t size;
-        if (PyBytes_AsStringAndSize(data.ptr(), const_cast<char**>(&buffer), &size) == -1) {
-            throw std::runtime_error("Failed to extract bytes from Python object");
+    .def("load_from_memory", [](sf::Texture& self, py::buffer data, bool s_rgb, const sf::IntRect& area) {
+        py::buffer_info info = data.request();
+        if (info.ndim != 1) {
+            throw std::runtime_error("Buffer must be 1-dimensional");
         }
-        bool result = self.loadFromMemory(static_cast<const void*>(buffer), static_cast<std::size_t>(size), s_rgb, area);
-        return result;
+        return self.loadFromMemory(info.ptr, static_cast<std::size_t>(info.size * info.itemsize), s_rgb, area);
     }, py::arg("data"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
     .def("load_from_stream", &sf::Texture::loadFromStream, py::arg("stream"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
     .def("load_from_image", &sf::Texture::loadFromImage, py::arg("image"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})

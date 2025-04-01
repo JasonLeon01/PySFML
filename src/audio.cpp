@@ -142,12 +142,12 @@ void bind_sound_buffer(py::module& m) {
     .def("load_from_file", [](sf::SoundBuffer& self, const std::string& filename) {
         return self.loadFromFile(filename);
     }, py::arg("filename"))
-    .def("load_from_memory", [](sf::SoundBuffer& self, py::bytes data) {
-        const char* buffer;
-        Py_ssize_t size;
-        PyBytes_AsStringAndSize(data.ptr(), const_cast<char**>(&buffer), &size);
-        bool result = self.loadFromMemory(static_cast<const void*>(buffer), static_cast<std::size_t>(size));
-        return result;
+    .def("load_from_memory", [](sf::SoundBuffer& self, py::buffer data) {
+        py::buffer_info info = data.request();
+        if (info.ndim != 1) {
+            throw std::runtime_error("Buffer must be 1-dimensional");
+        }
+        return self.loadFromMemory(info.ptr, static_cast<std::size_t>(info.size * info.itemsize));
     }, py::arg("data"))
     .def("load_from_stream", &sf::SoundBuffer::loadFromStream, py::arg("stream"))
     .def("load_from_samples", &sf::SoundBuffer::loadFromSamples, py::arg("samples"), py::arg("sampleCount"), py::arg("channelCount"), py::arg("sampleRate"), py::arg("channelMap"))
@@ -203,7 +203,13 @@ void bind_music(py::module& m) {
     .def("open_from_file", [](sf::Music& self, const std::string& filename) {
         return self.openFromFile(filename);
     }, py::arg("filename"))
-    .def("open_from_memory", &sf::Music::openFromMemory, py::arg("data"), py::arg("sizeInBytes"))
+    .def("open_from_memory", [](sf::Music& self, py::buffer data) {
+        py::buffer_info info = data.request();
+        if (info.ndim!= 1) {
+            throw std::runtime_error("Buffer must be 1-dimensional");
+        }
+        return self.openFromMemory(info.ptr, static_cast<std::size_t>(info.size * info.itemsize));
+    }, py::arg("data"))
     .def("open_from_stream", &sf::Music::openFromStream, py::arg("stream"))
     .def("get_duration", &sf::Music::getDuration)
     .def("get_loop_points", [](sf::Music& self) {
@@ -277,7 +283,13 @@ void bind_input_sound_file(py::module& m) {
     .def("open_from_file", [](sf::InputSoundFile& self, const std::string& filename) {
         return self.openFromFile(filename);
     }, py::arg("filename"))
-    .def("open_from_memory", &sf::InputSoundFile::openFromMemory, py::arg("data"), py::arg("sizeInBytes"))
+    .def("open_from_memory", [](sf::InputSoundFile& self, py::buffer data) {
+        py::buffer_info info = data.request();
+        if (info.ndim!= 1) {
+            throw std::runtime_error("Buffer must be 1-dimensional");
+        }
+        return self.openFromMemory(info.ptr, static_cast<std::size_t>(info.size * info.itemsize));
+    }, py::arg("data"))
     .def("open_from_stream", &sf::InputSoundFile::openFromStream, py::arg("stream"))
     .def("get_sample_count", &sf::InputSoundFile::getSampleCount)
     .def("get_channel_count", &sf::InputSoundFile::getChannelCount)
