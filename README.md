@@ -30,11 +30,11 @@ Ensure that the following folders are in your project directory:
 
 You can download SFML from [here](https://www.sfml-dev.org/files/SFML-3.0.0-windows-gcc-14.2.0-mingw-64-bit.zip), MinGW from [here](https://github.com/brechtsanders/winlibs_mingw/releases/download/14.2.0posix-19.1.1-12.0.0-ucrt-r2/winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2.7z) and pybind11 from [here](https://github.com/pybind/pybind11).
 
-#### Step2: Generate libpython39.a
-Find your path of python39.dll, and run the following command:
+#### Step2: Generate libpython310.a
+Find your path of python310.dll, and run the following command:
 ```sh
-gendef python39.dll
-dlltool -D python39.dll -d python39.def -l libpython39.a
+gendef python310.dll
+dlltool -D python310.dll -d python310.def -l libpython310.a
 ```
 
 #### Step 3: Create the Build Directory
@@ -60,7 +60,7 @@ cmake --build .
 This will generate the `pysf.pyd` file in the `build` directory.
 
 #### Step 6: Copy Required DLLs
-After building the project, copy the necessary DLL files (dll from SFML/bin, python39.dll, libgcc_s_seh-1.dll, libstdc++-6.dll, libwinpthread-1.dll) into the directory where the .pyd file is located.
+After building the project, copy the necessary DLL files (dll from SFML/bin, libgcc_s_seh-1.dll, libstdc++-6.dll, libwinpthread-1.dll) into the directory where the .pyd file is located.
 
 #### Step 7: Using the Binding in Python
 You can now import the SFML bindings in your Python project like this:
