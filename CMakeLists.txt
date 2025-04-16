@@ -23,19 +23,21 @@ message(STATUS "Python libraries: ${Python3_LIBRARIES}")
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     include_directories(${SFML_DIR}/include)
     link_directories(${SFML_DIR}/lib)
+    link_directories(${PYTHON_DIR}/libs)
+    set(TARGET_SUFFIX ".pyd")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(FETCHCONTENT_QUIET OFF)
     add_subdirectory(${SFML_DIR})
+    set(TARGET_SUFFIX ".so")
+else()
+    message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
 endif()
+
 add_subdirectory(${PYBIND11_DIR})
 include_directories(${PYTHON_DIR}/include)
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    link_directories(${PYTHON_DIR}/libs)
-endif()
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -s -flto")
 set(CMAKE_EXE_LINKER_FLAGS "-flto")
 
@@ -51,14 +53,6 @@ add_library(pysf SHARED
                 "src/graphics_core.cpp"
                 "src/audio.cpp"
                 "src/network.cpp")
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(TARGET_SUFFIX ".pyd")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(TARGET_SUFFIX ".so")
-else()
-    message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
-endif()
 
 set_target_properties(pysf PROPERTIES
     PREFIX ""
@@ -85,6 +79,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         pybind11::module
         -Wl,-rpath=${PYTHON_DIR}/libs
     )
+    add_custom_command(TARGET pysf POST_BUILD
+        COMMAND ${CMAKE_STRIP} --strip-all $<TARGET_FILE:pysf>
+    )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_link_libraries(pysf PRIVATE
         sfml-system
@@ -95,13 +92,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         Python3::Python
         pybind11::module
     )
-endif()
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    add_custom_command(TARGET pysf POST_BUILD
-        COMMAND ${CMAKE_STRIP} --strip-all $<TARGET_FILE:pysf>
-    )
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     add_custom_command(TARGET pysf POST_BUILD
         COMMAND ${CMAKE_STRIP} -x $<TARGET_FILE:pysf>
     )
