@@ -199,7 +199,7 @@ void bind_socket(py::module_ &m) {
         py::class_<sf::SocketHandle>(m, "SocketHandle")
         .def(py::init<>())
         .def("get_value", [](const sf::SocketHandle& handle) -> UINT_PTR {
-            return reinterpret_cast<UINT_PTR>(handle);
+            return static_cast<UINT_PTR>(handle);
         });
     #else
         py::class_<sf::SocketHandle>(m, "SocketHandle")

@@ -13,21 +13,20 @@ if(NOT Python3_FOUND)
 endif()
 
 get_filename_component(PYTHON_DIR "${Python3_EXECUTABLE}" DIRECTORY)
-set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
 
 message(STATUS "Python Dir: ${PYTHON_DIR}")
-message(STATUS "Using Python: ${PYTHON_EXECUTABLE}")
 message(STATUS "Python include dirs: ${Python3_INCLUDE_DIRS}")
 message(STATUS "Python libraries: ${Python3_LIBRARIES}")
 
+add_subdirectory(${SFML_DIR})
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    include_directories(${SFML_DIR}/include)
-    link_directories(${SFML_DIR}/lib)
-    link_directories(${PYTHON_DIR}/libs)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        include_directories(${SFML_DIR}/include)
+        link_directories(${PYTHON_DIR}/libs)
+    endif()
     set(TARGET_SUFFIX ".pyd")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(FETCHCONTENT_QUIET OFF)
-    add_subdirectory(${SFML_DIR})
     set(TARGET_SUFFIX ".so")
 else()
     message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
@@ -38,8 +37,11 @@ include_directories(${PYTHON_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -s -flto")
-set(CMAKE_EXE_LINKER_FLAGS "-flto")
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows" AND MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -s -flto")
+endif()
 
 add_library(pysf SHARED
                 "src/main.cpp"
@@ -68,30 +70,26 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     )
 endif()
 
+target_link_libraries(pysf PRIVATE
+    sfml-system
+    sfml-window
+    sfml-graphics
+    sfml-audio
+    sfml-network
+    Python3::Python
+    pybind11::module
+)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_link_libraries(pysf
-        sfml-system
-        sfml-window
-        sfml-graphics
-        sfml-audio
-        sfml-network
-        "${PYTHON_DIR}/libpython310.a"
-        pybind11::module
-        -Wl,-rpath=${PYTHON_DIR}/libs
-    )
-    add_custom_command(TARGET pysf POST_BUILD
-        COMMAND ${CMAKE_STRIP} --strip-all $<TARGET_FILE:pysf>
-    )
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_link_libraries(pysf PRIVATE
+            -Wl,-rpath=${PYTHON_DIR}/libs
+        )
+        add_custom_command(TARGET pysf POST_BUILD
+            COMMAND ${CMAKE_STRIP} --strip-all $<TARGET_FILE:pysf>
+        )
+    endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_link_libraries(pysf PRIVATE
-        sfml-system
-        sfml-window
-        sfml-graphics
-        sfml-audio
-        sfml-network
-        Python3::Python
-        pybind11::module
-    )
     add_custom_command(TARGET pysf POST_BUILD
         COMMAND ${CMAKE_STRIP} -x $<TARGET_FILE:pysf>
     )
