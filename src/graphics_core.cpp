@@ -113,8 +113,10 @@ void bind_text(py::module& m) {
     .value("StrikeThrough", sf::Text::StrikeThrough)
     .export_values();
 
-    text.def(py::init<const sf::Font&, std::string, unsigned int>(),
-         py::arg("font"), py::arg("string") = "", py::arg("character_size") = 30)
+    text.def(py::init<>([](const sf::Font& font, std::string string, unsigned int characterSize) {
+        sf::Text text_(font, sf::String::fromUtf8(string.begin(), string.end()), characterSize);
+        return text_;
+    }), py::arg("font"), py::arg("string") = "", py::arg("character_size") = 30)
     .def("set_string", [](sf::Text& self, const std::string& string) {
         self.setString(sf::String::fromUtf8(string.begin(), string.end()));
     }, py::arg("string"))

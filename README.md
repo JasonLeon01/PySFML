@@ -44,7 +44,7 @@ dlltool -D python310.dll -d python310.def -l libpython310.a
 
 You can download SFML from [here](https://github.com/SFML/SFML/releases/tag/3.0.0#:~:text=SFML%2D3.0.0%2Dsources.zip).
 
-### Step2: Generate libpython310.a
+### Step2: Generate libpython310.a(Windows only)
 Find your path of python310.dll, and run the following command:
 ```sh
 gendef python310.dll
