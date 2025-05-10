@@ -44,6 +44,7 @@ else()
 endif()
 
 add_library(pysf SHARED
+                "src/utils.cpp"
                 "src/main.cpp"
                 "src/system.cpp"
                 "src/window_base.cpp"

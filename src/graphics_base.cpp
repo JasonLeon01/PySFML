@@ -245,7 +245,13 @@ void bind_font(py::module_ &m) {
     .def_readwrite("family", &sf::Font::Info::family);
 
     font.def(py::init<>())
-    .def(py::init<const void*, std::size_t>(), py::arg("data"), py::arg("sizeInBytes"))
+    .def(py::init<>([](py::buffer data) {
+        py::buffer_info info = data.request();
+        if (info.ndim!= 1) {
+            throw std::runtime_error("Buffer must be 1-dimensional");
+        }
+        return sf::Font(info.ptr, static_cast<std::size_t>(info.size * info.itemsize));
+    }), py::arg("data"))
     .def(py::init<sf::InputStream&>(), py::arg("stream"))
     .def(py::init<>([](const std::string &filename) {
         return sf::Font(filename);
@@ -254,7 +260,13 @@ void bind_font(py::module_ &m) {
     .def("open_from_file", [](sf::Font &self, const std::string &filename) {
         return self.openFromFile(filename);
     }, py::arg("filename"))
-    .def("open_from_memory", &sf::Font::openFromMemory, py::arg("data"), py::arg("sizeInBytes"))
+    .def("open_from_memory", [](sf::Font &self, py::buffer data) {
+        py::buffer_info info = data.request();
+        if (info.ndim!= 1) {
+            throw std::runtime_error("Buffer must be 1-dimensional");
+        }
+        return self.openFromMemory(info.ptr, static_cast<std::size_t>(info.size * info.itemsize));
+    }, py::arg("data"))
     .def("open_from_stream", &sf::Font::openFromStream, py::arg("stream"))
 
     .def("get_info", &sf::Font::getInfo)

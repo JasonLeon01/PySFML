@@ -142,7 +142,13 @@ void bind_http(py::module &m) {
 void bind_packet(py::module_ &m) {
     py::class_<sf::Packet>(m, "Packet")
     .def(py::init<>())
-    .def("append", &sf::Packet::append, py::arg("data"), py::arg("sizeInBytes"))
+    .def("append", [](sf::Packet& self, py::buffer data) {
+        py::buffer_info info = data.request();
+        if (info.ndim!= 1) {
+            throw std::runtime_error("Buffer must be 1-dimensional");
+        }
+        self.append(info.ptr, info.itemsize);
+    })
     .def("get_read_position", &sf::Packet::getReadPosition)
     .def("clear", &sf::Packet::clear)
     .def("get_data", &sf::Packet::getData)

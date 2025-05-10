@@ -1,16 +1,23 @@
 #include <graphics_render.h>
+#include <utils.h>
 
 void bind_image(py::module_ &m) {
     py::class_<sf::Image>(m, "Image")
     .def(py::init<>())
     .def(py::init<sf::Vector2u, sf::Color>(), py::arg("size"), py::arg("color") = sf::Color::Black)
-    .def(py::init<sf::Vector2u, const uint8_t*>(), py::arg("size"), py::arg("pixels"))
+    .def(py::init<>([&](sf::Vector2u size, py::array_t<std::uint8_t> pixels) {
+        return sf::Image(size, pixel_array_ptr(pixels));
+    }), py::arg("size"), py::arg("pixels"))
     .def(py::init<>([](const std::string &filename) {
         return sf::Image(filename);
     }), py::arg("filename"))
     .def(py::init<sf::InputStream&>(), py::arg("stream"))
-    .def("resize", (void (sf::Image::*)(sf::Vector2u, sf::Color)) &sf::Image::resize, py::arg("size"), py::arg("color") = sf::Color::Black)
-    .def("resize", (void (sf::Image::*)(sf::Vector2u, const uint8_t*)) &sf::Image::resize, py::arg("size"), py::arg("pixels"))
+    .def("resize", [](sf::Image& self, sf::Vector2u size, sf::Color color) {
+        self.resize(size, color);
+    }, py::arg("size"), py::arg("color") = sf::Color::Black)
+    .def("resize", [](sf::Image& self, sf::Vector2u size, py::array_t<std::uint8_t> pixels) {
+        return sf::Image(size, pixel_array_ptr(pixels));
+    }, py::arg("size"), py::arg("pixels"))
     .def("load_from_file", [](sf::Image &self, const std::string &filename) {
         return self.loadFromFile(filename);
     }, py::arg("filename"))
@@ -150,8 +157,8 @@ void bind_render_window(py::module_ &m) {
     .def("set_icon", [](sf::RenderWindow& self, const sf::Image& image) {
         self.setIcon(image);
     }, py::arg("image"))
-    .def("set_icon", [](sf::RenderWindow& self, sf::Vector2<unsigned int>& size, const std::uint8_t* pixels) {
-        self.setIcon(size, pixels);
+    .def("set_icon", [](sf::RenderWindow& self, sf::Vector2<unsigned int>& size, py::array_t<std::uint8_t> pixels) {
+        self.setIcon(size, pixel_array_ptr(pixels));
     }, py::arg("size"), py::arg("pixels"))
     .def("is_srgb", &sf::RenderWindow::isSrgb)
     .def("set_active", &sf::RenderWindow::setActive, py::arg("active") = true);
