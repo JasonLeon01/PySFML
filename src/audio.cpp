@@ -146,9 +146,9 @@ void bind_sound_buffer(py::module& m) {
         return sf::SoundBuffer(info.ptr, static_cast<std::size_t>(info.size * info.itemsize));
     }), py::arg("data"))
     .def(py::init<sf::InputStream&>(), py::arg("stream"))
-    .def(py::init<>([](std::vector<std::vector<float>> samples, unsigned int sampleRate, std::vector<sf::SoundChannel>& channelMap) {
-        auto [samples_ptr, sample_count, channel_count] = pcm_array_ptr(samples, sampleRate);
-        return sf::SoundBuffer(samples_ptr, sample_count, channel_count, sampleRate, channelMap);
+    .def(py::init<>([](py::buffer samples, unsigned int sampleRate, std::vector<sf::SoundChannel>& channelMap) {
+        auto [samples_result, sample_count, channel_count] = pcm_array_ptr(samples, sampleRate);
+        return sf::SoundBuffer(samples_result.data(), sample_count, channel_count, sampleRate, channelMap);
     }), py::arg("samples"), py::arg("sampleRate"), py::arg("channelMap"))
     .def("load_from_file", [](sf::SoundBuffer& self, const std::string& filename) {
         return self.loadFromFile(filename);

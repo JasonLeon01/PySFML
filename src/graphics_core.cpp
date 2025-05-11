@@ -28,11 +28,11 @@ void bind_texture(py::module& m) {
     .def("load_from_image", &sf::Texture::loadFromImage, py::arg("image"), py::arg("s_rgb") = false, py::arg("area") = sf::IntRect{})
     .def("get_size", &sf::Texture::getSize)
     .def("copy_to_image", &sf::Texture::copyToImage)
-    .def("update", [&](sf::Texture& self, std::vector<std::vector<std::vector<std::uint8_t>>> pixels) {
-        self.update(pixel_array_ptr(pixels));
+    .def("update", [&](sf::Texture& self, py::buffer pixels) {
+        self.update(pixel_array_ptr(pixels)->data());
     }, py::arg("pixels"))
-    .def("update", [&](sf::Texture& self, std::vector<std::vector<std::vector<std::uint8_t>>> pixels, sf::Vector2u size, sf::Vector2u dest) {
-        self.update(pixel_array_ptr(pixels), size, dest);
+    .def("update", [&](sf::Texture& self, py::buffer pixels, sf::Vector2u size, sf::Vector2u dest) {
+        self.update(pixel_array_ptr(pixels)->data(), size, dest);
     }, py::arg("pixels"), py::arg("size"), py::arg("position"))
     .def("update", py::overload_cast<const sf::Texture&>(&sf::Texture::update), py::arg("texture"))
     .def("update", py::overload_cast<const sf::Texture&, sf::Vector2u>(&sf::Texture::update), py::arg("texture"), py::arg("position"))

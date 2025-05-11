@@ -1,9 +1,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
+#include <pybind11/stl.h>
+#include <memory>
 #include <vector>
 
 namespace py = pybind11;
 
-const std::uint8_t* pixel_array_ptr(std::vector<std::vector<std::vector<std::uint8_t>>> pixels);
+std::shared_ptr<std::vector<std::uint8_t>> pixel_array_ptr(py::buffer data);
 
-const std::tuple<std::int16_t*, std::uint64_t, unsigned int> pcm_array_ptr(std::vector<std::vector<float>> float_array, unsigned int sampleRate);
+const std::tuple<std::vector<int16_t>, std::uint64_t, unsigned int> pcm_array_ptr(py::buffer data, unsigned int sampleRate);

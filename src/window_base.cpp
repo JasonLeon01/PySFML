@@ -69,11 +69,11 @@ void bind_cursor(py::module_ &m) {
     .export_values();
 
     cursor.def(py::init<sf::Cursor::Type>(), py::arg("type"))
-    .def(py::init<>([](std::vector<std::vector<std::vector<std::uint8_t>>> pixels, sf::Vector2u size, sf::Vector2u hotSpot) {
-        return sf::Cursor(pixel_array_ptr(pixels), size, hotSpot);
+    .def(py::init<>([](py::buffer pixels, sf::Vector2u size, sf::Vector2u hotSpot) {
+        return sf::Cursor(pixel_array_ptr(pixels)->data(), size, hotSpot);
     }))
-    .def_static("createFromPixels", [](sf::Cursor& self, std::vector<std::vector<std::vector<std::uint8_t>>> pixels, sf::Vector2u size, sf::Vector2u hotSpot) {
-        return sf::Cursor::createFromPixels(pixel_array_ptr(pixels), size, hotSpot);
+    .def_static("createFromPixels", [](sf::Cursor& self, py::buffer pixels, sf::Vector2u size, sf::Vector2u hotSpot) {
+        return sf::Cursor::createFromPixels(pixel_array_ptr(pixels)->data(), size, hotSpot);
     })
     .def_static("createFromSystem", &sf::Cursor::createFromSystem, py::arg("type"));
 }
