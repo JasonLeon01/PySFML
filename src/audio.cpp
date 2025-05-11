@@ -289,7 +289,9 @@ void bind_sound_recorder(py::module& m) {
 void bind_sound_buffer_recorder(py::module& m) {
     py::class_<sf::SoundBufferRecorder, sf::SoundRecorder>(m, "SoundBufferRecorder")
     .def(py::init<>())
-    .def("get_buffer", &sf::SoundBufferRecorder::getBuffer, py::return_value_policy::reference)
+     .def("get_buffer", [](sf::SoundBufferRecorder &self) -> const sf::SoundBuffer& {
+        return self.getBuffer();
+    }, py::return_value_policy::reference_internal)
     .def_static("is_available", &sf::SoundBufferRecorder::isAvailable);
 }
 

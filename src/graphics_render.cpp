@@ -148,7 +148,9 @@ void bind_render_texture(py::module_ &m) {
     .def("display", &sf::RenderTexture::display)
     .def("get_size", &sf::RenderTexture::getSize)
     .def("is_srgb", &sf::RenderTexture::isSrgb)
-    .def("get_texture", &sf::RenderTexture::getTexture, py::return_value_policy::reference_internal)
+    .def("get_texture", [](sf::RenderTexture &self) -> const sf::Texture& {
+        return self.getTexture();
+    }, py::return_value_policy::reference_internal)
     .def_static("get_maximum_anti_aliasing_level", []() {
         return sf::RenderTexture::getMaximumAntiAliasingLevel();
     });
