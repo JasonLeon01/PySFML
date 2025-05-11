@@ -8,6 +8,9 @@ void bind_image(py::module_ &m) {
     .def(py::init<>([&](sf::Vector2u size, py::buffer pixels) {
         return sf::Image(size, pixel_array_ptr(pixels)->data());
     }), py::arg("size"), py::arg("pixels"))
+    .def(py::init<>([&](sf::Vector2u size, const std::vector<std::vector<std::vector<std::uint8_t>>>& pixels) {
+        return sf::Image(size, pixel_array_ptr(pixels)->data());
+    }), py::arg("size"), py::arg("pixels"))
     .def(py::init<>([](const std::string &filename) {
         return sf::Image(filename);
     }), py::arg("filename"))
@@ -16,6 +19,9 @@ void bind_image(py::module_ &m) {
         self.resize(size, color);
     }, py::arg("size"), py::arg("color") = sf::Color::Black)
     .def("resize", [](sf::Image& self, sf::Vector2u size, py::buffer pixels) {
+        return sf::Image(size, pixel_array_ptr(pixels)->data());
+    }, py::arg("size"), py::arg("pixels"))
+    .def("resize", [](sf::Image& self, sf::Vector2u size, const std::vector<std::vector<std::vector<std::uint8_t>>>& pixels) {
         return sf::Image(size, pixel_array_ptr(pixels)->data());
     }, py::arg("size"), py::arg("pixels"))
     .def("load_from_file", [](sf::Image &self, const std::string &filename) {
@@ -158,6 +164,9 @@ void bind_render_window(py::module_ &m) {
         self.setIcon(image);
     }, py::arg("image"))
     .def("set_icon", [](sf::RenderWindow& self, sf::Vector2<unsigned int>& size, py::buffer pixels) {
+        self.setIcon(size, pixel_array_ptr(pixels)->data());
+    }, py::arg("size"), py::arg("pixels"))
+    .def("set_icon", [](sf::RenderWindow& self, sf::Vector2<unsigned int>& size, const std::vector<std::vector<std::vector<std::uint8_t>>>& pixels) {
         self.setIcon(size, pixel_array_ptr(pixels)->data());
     }, py::arg("size"), py::arg("pixels"))
     .def("is_srgb", &sf::RenderWindow::isSrgb)
