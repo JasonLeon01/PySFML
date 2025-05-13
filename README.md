@@ -9,7 +9,6 @@ This project uses CMake, MingGW(on Windows) and pybind11 to bind SFML 3.0 with P
 
 ### If you are using Windows
 1. **Required DLLs**: After building the `.pyd` file, you need to ensure the following DLLs are present in the same directory as the `.pyd` file:
-    - `python310.dll`
     - `msvcp140.dll`
     - `vcruntime140.dll`
     - `vcruntime140_1.dll`
@@ -50,13 +49,14 @@ Run the following CMake command to configure the project:
 #### **If you are using Windows**
 ```bash
 cmake -G "Visual Studio 17 2022" -A x64 ..
-cmake --build . --config Release
+cmake --build . --config Release -- /m
+
 ```
 
 #### **If you are using macOS**
 ```bash
 cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release .. --trace-expand
-cmake --build .
+cmake --build . -- -j$(sysctl -n hw.ncpu)
 ```
 
 This will generate the `pysf.pyd/pysf.so` file in the `build` directory.

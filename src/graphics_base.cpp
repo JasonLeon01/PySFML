@@ -38,14 +38,26 @@ void bind_blend_mode(py::module_ &m) {
     .def_readwrite("color_equation", &sf::BlendMode::colorEquation)
     .def_readwrite("alpha_src_factor", &sf::BlendMode::alphaSrcFactor)
     .def_readwrite("alpha_dst_factor", &sf::BlendMode::alphaDstFactor)
-    .def_readwrite("alpha_equation", &sf::BlendMode::alphaEquation);
+    .def_readwrite("alpha_equation", &sf::BlendMode::alphaEquation)
 
-    m.attr("blend_alpha") = sf::BlendAlpha;
-    m.attr("blend_add") = sf::BlendAdd;
-    m.attr("blend_multiply") = sf::BlendMultiply;
-    m.attr("blend_min") = sf::BlendMin;
-    m.attr("blend_max") = sf::BlendMax;
-    m.attr("blend_none") = sf::BlendNone;
+    .def_static("BlendAlpha", []() {
+       return sf::BlendAlpha;
+    })
+    .def_static("BlendAdd", []() {
+       return sf::BlendAdd;
+    })
+    .def_static("BlendMultiply", []() {
+       return sf::BlendMultiply;
+    })
+    .def_static("BlendMin", []() {
+       return sf::BlendMin;
+    })
+    .def_static("BlendMax", []() {
+       return sf::BlendMax;
+    })
+    .def_static("BlendNone", []() {
+       return sf::BlendNone;
+    });
 }
 
 void bind_transform(py::module& m) {

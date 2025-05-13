@@ -19,6 +19,6 @@ if not exist build (
 cd build
 
 cmake -G "Visual Studio 17 2022" -A x64 ..
-cmake --build . --config Release
+cmake --build . --config Release -- /m
 
 endlocal

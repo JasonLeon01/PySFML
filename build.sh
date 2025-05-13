@@ -11,4 +11,4 @@ fi
 cd build
 
 cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release .. --trace-expand
-cmake --build .
+cmake --build . -- -j$(sysctl -n hw.ncpu)
