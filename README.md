@@ -72,3 +72,6 @@ import pysf
 ```
 
 You should now be able to use SFML through Python.
+
+## Related Repository
+[PySFBoost](https://github.com/JasonLeon01/PySFBoost): Compiled pysf with pyi files and some enhancements. It's still under development. 
