@@ -2,6 +2,9 @@
 
 This project uses CMake, MingGW(on Windows) and pybind11 to bind SFML 3.0 with Python 3.10.
 
+## Hint!!!
+Now we have a brand new framework here! [PySF-AutoGenerator](https://github.com/JasonLeon01/PySF-AutoGenerator)
+
 ## Requirements
 
 1. **Python 3.10**: This project requires Python 3.10. Make sure to have it installed on your system.
